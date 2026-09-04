@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Caveat:wght@400..700&family=Instrument+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, Cambria, serif;
+    --font-hand: 'Caveat', cursive, sans-serif;
+    
+    --color-cream-light: #FDFDFC;
+    --color-cream-base: #F7F4EB;
+    --color-tiramisu-light: #EADBC8;
+    --color-tiramisu-dark: #DAC0A3;
+    --color-cocoa-light: #C0A080;
+    --color-cocoa-medium: #8C6A5C;
+    --color-espresso: #3D2314;
+    --color-espresso-dark: #2B1B10;
+}
+
+/* Custom Scrapbook Styling */
+.scrapbook-paper {
+    background-color: var(--color-cream-base);
+    background-image: 
+        radial-gradient(rgba(92, 64, 51, 0.05) 1px, transparent 0),
+        radial-gradient(rgba(92, 64, 51, 0.05) 1px, transparent 0);
+    background-size: 24px 24px;
+    background-position: 0 0, 12px 12px;
+}
+
+.linen-texture {
+    position: relative;
+}
+.linen-texture::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.wax-seal {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.2);
+    background: radial-gradient(circle at 35% 35%, #8C2D19 0%, #5C1E10 80%);
+}
+
+/* Page Specific CSS moved globally to support PJAX page transitions */
+
+/* welcome.blade.php Styles */
+.polaroid-photo {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    transition: all 0.4s ease;
+}
+.polaroid-photo:hover {
+    transform: scale(1.05) rotate(0deg) translateY(-10px) !important;
+    z-index: 50 !important;
+}
+.paper-patch {
+    box-shadow: 2px 2px 0px var(--color-espresso);
+    transition: all 0.2s ease;
+}
+.paper-patch:hover {
+    transform: translateY(-3px);
+    box-shadow: 4px 4px 0px var(--color-espresso);
+}
+.paper-patch:active {
+    transform: translateY(1px);
+    box-shadow: 1px 1px 0px var(--color-espresso);
+}
+
+/* photobooth.blade.php Styles */
+.paper-border {
+    border: 12px solid #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+.countdown-pulse {
+    animation: pulse 1s infinite alternate;
+}
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.3); opacity: 1; }
+}
+.flash-effect {
+    animation: flash 0.4s ease-out;
+}
+@keyframes flash {
+    0% { opacity: 0; }
+    50% { opacity: 1; background-color: #fff; }
+    100% { opacity: 0; }
+}
+
+/* galeri.blade.php Styles */
+.polaroid-card {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+    transition: all 0.3s ease;
+}
+.polaroid-card:hover {
+    transform: scale(1.05) rotate(0deg) translateY(-8px) !important;
+    z-index: 30;
+}
+
+/* surat_dari_aku.blade.php Styles */
+.envelope-container {
+    perspective: 1000px;
+}
+.envelope {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    height: 320px;
+    background-color: #EADBC8;
+    border: 2px solid #3D2314;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    transition: all 0.5s ease;
+    overflow: hidden;
+}
+.envelope-flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background-color: #DAC0A3;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top;
+    transition: all 0.5s ease;
+    z-index: 20;
+}
+.letter-content {
+    position: absolute;
+    bottom: 10px;
+    left: 5%;
+    width: 90%;
+    height: 280px;
+    background: #FDFDFC;
+    border: 1px solid #C0A080;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+    transform: translateY(30px);
+    opacity: 0;
+    pointer-events: none;
+    overflow-y: auto;
+}
+.envelope.open {
+    overflow: visible;
+}
+.envelope.open .envelope-flap {
+    transform: rotateX(180deg);
+    z-index: 5;
+}
+.envelope.open .letter-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.05);
+    width: 95%;
+    max-width: 550px;
+    height: 80vh;
+    max-height: 520px;
+    z-index: 50;
+    opacity: 1;
+    pointer-events: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 480px) {
+    .envelope {
+        height: 280px;
+    }
+    #wax-seal {
+        top: 120px !important;
+    }
+    #guide-text {
+        font-size: 11px !important;
+        right: 8px !important;
+        bottom: 6px !important;
+    }
+    .envelope div.absolute.bottom-4.left-6 {
+        left: 8px !important;
+        bottom: 6px !important;
+    }
+}
+
+/* kapsul_waktu.blade.php Styles */
+.capsule-card {
+    border: 2px solid #3D2314;
+    transition: all 0.3s ease;
+}
+.capsule-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+.paper-tape {
+    background-color: rgba(218, 192, 163, 0.6);
+    border: 1px dashed #3D2314;
+}
