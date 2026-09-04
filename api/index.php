@@ -1,7 +1,11 @@
 <?php
 
-// Pastikan semua struktur folder storage ada di /tmp
-$storageFolders = [
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+// 1. Buat folder sementara di /tmp
+$tmpDirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
     '/tmp/storage/framework/sessions',
@@ -10,13 +14,13 @@ $storageFolders = [
     '/tmp/bootstrap/cache',
 ];
 
-foreach ($storageFolders as $folder) {
-    if (!is_dir($folder)) {
-        mkdir($folder, 0777, true);
+foreach ($tmpDirs as $dir) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
     }
 }
 
-// Redirect cache bootstrap ke /tmp
+// 2. Set environment path ke /tmp
 putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
 putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
 putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
@@ -24,4 +28,20 @@ putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
 putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 
-require __DIR__ . '/../public/index.php';
+// 3. Muat Composer Autoloader
+require __DIR__ . '/../vendor/autoload.php';
+
+// 4. Inisialisasi Aplikasi Laravel & Set Storage Path
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
+// Arahkan storage path instance ke /tmp
+$app->useStoragePath('/tmp/storage');
+
+// 5. Tangani Request Masuk
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+
+$response = $kernel->handle(
+    $request = Request::capture()
+)->send();
+
+$kernel->terminate($request, $response);
