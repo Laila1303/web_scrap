@@ -50,7 +50,6 @@
             
             <!-- Left Column: Input Form (5 Cols) -->
             <div class="lg:col-span-5 bg-[#F4EFE6] border-2 border-espresso p-6 rounded-xl shadow-md flex flex-col gap-4 relative">
-                <!-- Decorative Tape -->
                 <div class="absolute -top-3 left-1/3 w-28 h-6 paper-tape transform rotate-[-2deg] opacity-75"></div>
                 
                 <h2 class="font-serif text-xl font-bold text-espresso-dark mt-2">[ ✍️ TULIS SURAT MASA DEPAN ]</h2>
@@ -67,17 +66,17 @@
                     <!-- Type Selection -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Jenis Kiriman:</label>
-                        <select name="type" id="type-select" onchange="toggleUnlockOptions(this.value)" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
-                            <option value="time_capsule" @selected(old('type') === 'time_capsule')>🔒 Kapsul Waktu (Terkunci sampai tanggal tertentu)</option>
+                        <select name="type" id="type-select" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                            <option value="time_capsule" @selected(old('type', 'time_capsule') === 'time_capsule')>🔒 Kapsul Waktu (Terkunci sampai tanggal tertentu)</option>
                             <option value="letter" @selected(old('type') === 'letter')>🔓 Surat Biasa (Langsung bisa dibuka Kayla hari ini)</option>
                         </select>
                     </div>
 
-                    <!-- Unlock Date Options (Relative/Custom) -->
+                    <!-- Unlock Date Options -->
                     <div id="unlock-options-container" class="flex flex-col gap-3">
                         <div class="flex flex-col gap-1">
                             <label class="font-serif text-xs font-bold text-espresso">Jadwal Pembukaan Kapsul:</label>
-                            <select name="unlock_relative" id="relative-select" onchange="toggleCustomDate(this.value)" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                            <select name="unlock_relative" id="relative-select" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
                                 <option value="1_year" @selected(old('unlock_relative') === '1_year' || !old('unlock_relative'))>1 Tahun Lagi ({{ (int)date('Y') + 1 }})</option>
                                 <option value="2_years" @selected(old('unlock_relative') === '2_years')>2 Tahun Lagi ({{ (int)date('Y') + 2 }})</option>
                                 <option value="5_years" @selected(old('unlock_relative') === '5_years')>5 Tahun Lagi ({{ (int)date('Y') + 5 }})</option>
@@ -85,10 +84,10 @@
                             </select>
                         </div>
                         
-                        <!-- Custom Date picker (Tampil jika memilih custom) -->
-                        <div id="custom-date-container" style="display: none;" class="flex-col gap-1">
-                            <label class="font-serif text-xs font-bold text-espresso">Pilih Tanggal Buka:</label>
-                            <input type="date" id="unlock_custom_input" name="unlock_custom" min="{{ date('Y-m-d', strtotime('+1 day')) }}" value="{{ old('unlock_custom') }}" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                        <!-- Custom Date Picker -->
+                        <div id="custom-date-container" style="{{ old('unlock_relative') === 'custom' ? 'display: block;' : 'display: none;' }}" class="flex flex-col gap-1">
+                            <label class="font-serif text-xs font-bold text-espresso text-red-700">📅 Tentukan Tanggal Buka Kapsul:</label>
+                            <input type="date" id="unlock_custom_input" name="unlock_custom" min="{{ date('Y-m-d') }}" value="{{ old('unlock_custom') }}" class="w-full text-sm bg-white p-2.5 rounded border-2 border-espresso focus:outline-none cursor-pointer shadow-inner">
                         </div>
                     </div>
 
@@ -168,7 +167,6 @@
     <!-- Read Modal -->
     <div id="read-modal" style="display: none;" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
         <div class="bg-cream-light border-2 border-espresso max-w-lg w-full rounded-xl shadow-2xl p-6 relative flex flex-col gap-4">
-            <!-- Close Button -->
             <button onclick="closeModal()" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-xl cursor-pointer">&times;</button>
             
             <div class="border-b border-dashed border-cocoa-light pb-2">
@@ -187,44 +185,33 @@
     </div>
 
     <script>
-        function toggleUnlockOptions(type) {
-            const container = document.getElementById('unlock-options-container');
-            if (!container) return;
-            
-            if (type === 'letter') {
-                container.style.display = 'none';
-            } else {
-                container.style.display = 'flex';
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementById('type-select');
+            const relativeSelect = document.getElementById('relative-select');
+            const unlockContainer = document.getElementById('unlock-options-container');
+            const customContainer = document.getElementById('custom-date-container');
+            const customInput = document.getElementById('unlock_custom_input');
 
-        function toggleCustomDate(value) {
-            const container = document.getElementById('custom-date-container');
-            const input = document.getElementById('unlock_custom_input');
-            if (!container) return;
-
-            if (value === 'custom') {
-                container.style.display = 'flex';
-                if (input) input.required = true;
-            } else {
-                container.style.display = 'none';
-                if (input) {
-                    input.required = false;
-                    input.value = '';
+            function updateVisibility() {
+                if (typeSelect.value === 'letter') {
+                    unlockContainer.style.display = 'none';
+                    customInput.required = false;
+                } else {
+                    unlockContainer.style.display = 'flex';
+                    if (relativeSelect.value === 'custom') {
+                        customContainer.style.display = 'block';
+                        customInput.required = true;
+                    } else {
+                        customContainer.style.display = 'none';
+                        customInput.required = false;
+                    }
                 }
             }
-        }
 
-        function syncFormFields() {
-            const typeSelect = document.getElementById('type-select');
-            if (typeSelect) toggleUnlockOptions(typeSelect.value);
-            
-            const relativeSelect = document.getElementById('relative-select');
-            if (relativeSelect) toggleCustomDate(relativeSelect.value);
-        }
-
-        document.addEventListener('DOMContentLoaded', syncFormFields);
-        window.addEventListener('load', syncFormFields);
+            typeSelect.addEventListener('change', updateVisibility);
+            relativeSelect.addEventListener('change', updateVisibility);
+            updateVisibility();
+        });
 
         function readCapsule(sender, content, date) {
             document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
@@ -237,7 +224,6 @@
             document.getElementById('read-modal').style.display = 'none';
         }
 
-        // Live Countdown Script
         function updateCountdowns() {
             const now = new Date().getTime();
             const timers = document.querySelectorAll('.countdown-timer');
