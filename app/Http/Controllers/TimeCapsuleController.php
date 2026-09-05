@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\TimeCapsule;
 use Carbon\Carbon;
 
@@ -28,10 +27,10 @@ class TimeCapsuleController extends Controller
         $unlockAt = Carbon::now();
 
         if ($request->type === 'letter') {
-            // Letters are unlocked instantly (set to past)
+            // Surat biasa langsung terbuka seketika
             $unlockAt = Carbon::now()->subMinutes(1);
         } else {
-            // Time capsule schedule
+            // Pengaturan jadwal kapsul waktu
             if ($request->unlock_relative === '1_year') {
                 $unlockAt = Carbon::now()->addYear();
             } elseif ($request->unlock_relative === '2_years') {
@@ -39,9 +38,9 @@ class TimeCapsuleController extends Controller
             } elseif ($request->unlock_relative === '5_years') {
                 $unlockAt = Carbon::now()->addYears(5);
             } elseif ($request->unlock_relative === 'custom' && $request->unlock_custom) {
-                $unlockAt = Carbon::parse($request->unlock_custom);
+                // Set tanggal kustom dengan menyamakan jam & menit saat ini
+                $unlockAt = Carbon::parse($request->unlock_custom)->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
             } else {
-                // Default 1 year if not specified
                 $unlockAt = Carbon::now()->addYear();
             }
         }

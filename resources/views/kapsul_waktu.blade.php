@@ -9,11 +9,11 @@
 </head>
 <body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative">
     
-    <!-- User designed Mockup Corner Decorations (Pinggir web) -->
-    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="PPG Group Left">
-    <img src="{{ asset('images/mockup_top_right.png') }}" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Newspaper Collage Right">
-    <img src="{{ asset('images/mockup_bottom_left.png') }}" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Newspaper Tulip Left">
-    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Blossom Guitar Right">
+    <!-- Mockup Corner Decorations -->
+    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="Top Left">
+    <img src="{{ asset('images/mockup_top_right.png') }}" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
+    <img src="{{ asset('images/mockup_bottom_left.png') }}" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
+    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Bottom Right">
     
     <div class="max-w-6xl w-full mx-auto z-10 flex-1 flex flex-col gap-4 sm:gap-6">
         
@@ -35,6 +35,16 @@
             </div>
         @endif
 
+        @if($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative font-serif text-sm">
+                <ul class="list-disc pl-5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 my-auto items-start">
             
@@ -51,13 +61,13 @@
                     <!-- Sender -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Nama Pengirim:</label>
-                        <input type="text" name="sender" placeholder="" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none">
+                        <input type="text" name="sender" value="{{ old('sender') }}" placeholder="Tulis namamu atau inisial..." class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none" required>
                     </div>
 
                     <!-- Type Selection -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Jenis Kiriman:</label>
-                        <select name="type" id="type-select" onchange="toggleUnlockOptions(this.value)" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none">
+                        <select name="type" id="type-select" onchange="toggleUnlockOptions(this.value)" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
                             <option value="time_capsule" @selected(old('type') === 'time_capsule')>🔒 Kapsul Waktu (Terkunci sampai tanggal tertentu)</option>
                             <option value="letter" @selected(old('type') === 'letter')>🔓 Surat Biasa (Langsung bisa dibuka Kayla hari ini)</option>
                         </select>
@@ -67,28 +77,28 @@
                     <div id="unlock-options-container" class="flex flex-col gap-3">
                         <div class="flex flex-col gap-1">
                             <label class="font-serif text-xs font-bold text-espresso">Jadwal Pembukaan Kapsul:</label>
-                            <select name="unlock_relative" id="relative-select" onchange="toggleCustomDate(this.value)" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none">
-                                <option value="1_year" @selected(old('unlock_relative') === '1_year' || !old('unlock_relative'))>1 Tahun Lagi (2027)</option>
-                                <option value="2_years" @selected(old('unlock_relative') === '2_years')>2 Tahun Lagi (2028)</option>
-                                <option value="5_years" @selected(old('unlock_relative') === '5_years')>5 Tahun Lagi (2031)</option>
+                            <select name="unlock_relative" id="relative-select" onchange="toggleCustomDate(this.value)" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                                <option value="1_year" @selected(old('unlock_relative') === '1_year' || !old('unlock_relative'))>1 Tahun Lagi ({{ (int)date('Y') + 1 }})</option>
+                                <option value="2_years" @selected(old('unlock_relative') === '2_years')>2 Tahun Lagi ({{ (int)date('Y') + 2 }})</option>
+                                <option value="5_years" @selected(old('unlock_relative') === '5_years')>5 Tahun Lagi ({{ (int)date('Y') + 5 }})</option>
                                 <option value="custom" @selected(old('unlock_relative') === 'custom')>Pilih Tanggal Kustom...</option>
                             </select>
                         </div>
                         
-                        <!-- Custom Date picker -->
-                        <div id="custom-date-container" class="hidden flex flex-col gap-1">
-                            <label class="font-serif text-xs font-bold text-espresso">Pilih Tanggal:</label>
-                            <input type="date" name="unlock_custom" min="{{ date('Y-m-d') }}" value="{{ old('unlock_custom') }}" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none">
+                        <!-- Custom Date picker (Tampil jika memilih custom) -->
+                        <div id="custom-date-container" style="display: none;" class="flex-col gap-1">
+                            <label class="font-serif text-xs font-bold text-espresso">Pilih Tanggal Buka:</label>
+                            <input type="date" id="unlock_custom_input" name="unlock_custom" min="{{ date('Y-m-d', strtotime('+1 day')) }}" value="{{ old('unlock_custom') }}" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
                         </div>
                     </div>
 
                     <!-- Content -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Isi Surat / Harapan:</label>
-                        <textarea name="content" rows="6" placeholder="Tuliskan harapanmu, kenangan, atau pesan khusus untuk dibaca Kayla di masa depan..." class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light font-serif focus:outline-none" required></textarea>
+                        <textarea name="content" rows="6" placeholder="Tuliskan harapanmu, kenangan, atau pesan khusus untuk dibaca Kayla di masa depan..." class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light font-serif focus:outline-none" required>{{ old('content') }}</textarea>
                     </div>
 
-                    <button type="submit" class="w-full py-3 bg-espresso text-cream-light font-serif font-bold text-sm rounded shadow hover:bg-cocoa-medium transition mt-2">
+                    <button type="submit" class="w-full py-3 bg-espresso text-cream-light font-serif font-bold text-sm rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
                         SIMPAN DALAM KAPSUL WAKTU
                     </button>
                 </form>
@@ -118,8 +128,7 @@
                                     </div>
                                     <h4 class="font-serif text-base font-bold text-espresso-dark mt-0.5">Dari: {{ $capsule->sender }}</h4>
                                     
-                                    @if(!$isUnlocked)
-                                        <!-- Countdown Text Container -->
+                                    @if(!$isUnlocked && $capsule->unlock_at)
                                         <p class="font-hand text-xs text-red-700/80 mt-1 countdown-timer" data-target="{{ $capsule->unlock_at->toISOString() }}">
                                             Terkunci. Membuka pada {{ $capsule->unlock_at->format('d M Y H:i') }}
                                         </p>
@@ -132,7 +141,7 @@
                             <!-- Action -->
                             <div>
                                 @if($isUnlocked)
-                                    <button onclick="readCapsule('{{ $capsule->sender }}', '{{ addslashes(str_replace("\n", "<br>", $capsule->content)) }}', '{{ $capsule->created_at->format('d M Y') }}')" class="px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition">
+                                    <button onclick="readCapsule('{{ e($capsule->sender) }}', '{!! addslashes(nl2br(e($capsule->content))) !!}', '{{ $capsule->created_at->format('d M Y') }}')" class="px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer">
                                         BACA SEKARANG &rarr;
                                     </button>
                                 @else
@@ -157,21 +166,21 @@
     </div>
 
     <!-- Read Modal -->
-    <div id="read-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50">
+    <div id="read-modal" style="display: none;" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
         <div class="bg-cream-light border-2 border-espresso max-w-lg w-full rounded-xl shadow-2xl p-6 relative flex flex-col gap-4">
             <!-- Close Button -->
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-lg">&times;</button>
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-xl cursor-pointer">&times;</button>
             
             <div class="border-b border-dashed border-cocoa-light pb-2">
-                <span id="modal-date" class="font-hand text-sm text-cocoa-medium">6 Juli 2026</span>
+                <span id="modal-date" class="font-hand text-sm text-cocoa-medium">Tanggal</span>
                 <h3 id="modal-sender" class="font-serif text-xl font-bold text-espresso-dark">Dari: Sahabat</h3>
             </div>
             
-            <p id="modal-content" class="font-serif text-sm leading-relaxed text-espresso/90 max-h-[300px] overflow-y-auto py-2">
+            <div id="modal-content" class="font-serif text-sm leading-relaxed text-espresso/90 max-h-[300px] overflow-y-auto py-2">
                 Isi surat...
-            </p>
+            </div>
             
-            <button onclick="closeModal()" class="w-full py-2 bg-espresso text-cream-light font-serif font-bold text-xs rounded shadow hover:bg-cocoa-medium transition mt-2">
+            <button onclick="closeModal()" class="w-full py-2 bg-espresso text-cream-light font-serif font-bold text-xs rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
                 TUTUP SURAT
             </button>
         </div>
@@ -180,21 +189,25 @@
     <script>
         function toggleUnlockOptions(type) {
             const container = document.getElementById('unlock-options-container');
+            if (!container) return;
+            
             if (type === 'letter') {
-                container.classList.add('hidden');
+                container.style.display = 'none';
             } else {
-                container.classList.remove('hidden');
+                container.style.display = 'flex';
             }
         }
 
         function toggleCustomDate(value) {
             const container = document.getElementById('custom-date-container');
-            const input = container.querySelector('input[type="date"]');
+            const input = document.getElementById('unlock_custom_input');
+            if (!container) return;
+
             if (value === 'custom') {
-                container.classList.remove('hidden');
+                container.style.display = 'flex';
                 if (input) input.required = true;
             } else {
-                container.classList.add('hidden');
+                container.style.display = 'none';
                 if (input) {
                     input.required = false;
                     input.value = '';
@@ -202,7 +215,6 @@
             }
         }
 
-        // Initialize state on page load/PJAX transition
         function syncFormFields() {
             const typeSelect = document.getElementById('type-select');
             if (typeSelect) toggleUnlockOptions(typeSelect.value);
@@ -212,17 +224,17 @@
         }
 
         document.addEventListener('DOMContentLoaded', syncFormFields);
-        syncFormFields(); // Trigger for dynamic/PJAX transitions
+        window.addEventListener('load', syncFormFields);
 
         function readCapsule(sender, content, date) {
             document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
             document.getElementById('modal-content').innerHTML = content;
             document.getElementById('modal-date').textContent = 'Dikirim pada: ' + date;
-            document.getElementById('read-modal').classList.remove('hidden');
+            document.getElementById('read-modal').style.display = 'flex';
         }
 
         function closeModal() {
-            document.getElementById('read-modal').classList.add('hidden');
+            document.getElementById('read-modal').style.display = 'none';
         }
 
         // Live Countdown Script
@@ -231,7 +243,10 @@
             const timers = document.querySelectorAll('.countdown-timer');
             
             timers.forEach(timer => {
-                const targetDate = new Date(timer.getAttribute('data-target')).getTime();
+                const targetAttr = timer.getAttribute('data-target');
+                if (!targetAttr) return;
+
+                const targetDate = new Date(targetAttr).getTime();
                 const diff = targetDate - now;
                 
                 if (diff <= 0) {
@@ -242,7 +257,7 @@
                     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
                     
-                    timer.innerHTML = `Terkunci. Buka dalam: <span class="font-mono font-bold">${days}h ${hours}h ${minutes}m ${seconds}s</span>`;
+                    timer.innerHTML = `Terkunci. Buka dalam: <span class="font-mono font-bold">${days}h ${hours}j ${minutes}m ${seconds}d</span>`;
                 }
             });
         }
