@@ -4,16 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Our Galery - Scrapbook Kayla</title>
+    <title>Our Gallery - Scrapbook Kayla</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative">
     
     <!-- Corner Decorations -->
-    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="PPG Group Left">
-    <img src="{{ asset('images/mockup_top_right.png') }}" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Newspaper Collage Right">
-    <img src="{{ asset('images/mockup_bottom_left.png') }}" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Newspaper Tulip Left">
-    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Blossom Guitar Right">
+    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="Top Left">
+    <img src="{{ asset('images/mockup_top_right.png') }}" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
+    <img src="{{ asset('images/mockup_bottom_left.png') }}" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
+    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Bottom Right">
     
     <div class="max-w-6xl w-full mx-auto z-10 flex-1 flex flex-col gap-4 sm:gap-6">
         
@@ -30,7 +30,7 @@
 
         @if ($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative font-serif text-sm z-50">
-                <strong class="font-bold">Gagal menyimpan foto memori:</strong>
+                <strong class="font-bold">Gagal menyimpan foto:</strong>
                 <ul class="list-disc pl-5 mt-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -66,7 +66,7 @@
                     <!-- Caption Input -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Catatan Tulisan Tangan:</label>
-                        <input type="text" name="caption" placeholder="Contoh: 1st meet after college 🌧️" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light font-hand focus:outline-none" required>
+                        <input type="text" name="caption" placeholder="Contoh: Candid pas hangout 🍜" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light font-hand focus:outline-none" required>
                     </div>
 
                     <!-- Size Input -->
@@ -85,56 +85,45 @@
                 </form>
             </div>
 
-            <!-- Right Side: Polaroid Flex Collage -->
+            <!-- Right Side: Polaroid Gallery Collage -->
             <div class="lg:col-span-8">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 justify-center justify-items-center">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-center justify-items-center">
                     
-                    @if($photos->isEmpty())
-                        <!-- Default Nostalgic Polaroids (Jika database masih kosong) -->
-                        <div class="polaroid-card bg-white p-3 pb-8 border border-gray-200 rounded-sm transform rotate-[-3deg] w-44 sm:w-52 shadow-sm">
-                            <img src="{{ asset('images/friends_polaroid.png') }}" class="w-full h-40 object-cover filter sepia-[0.3]" alt="Default">
-                            <p class="font-hand text-center text-espresso text-lg mt-3 rotate-[1deg]">Candid Kantin SMA 🍜</p>
-                        </div>
+                    @forelse($photos as $index => $photo)
+                        @php
+                            $rotations = ['rotate-[-3deg]', 'rotate-[4deg]', 'rotate-[-2deg]', 'rotate-[3deg]', 'rotate-[-4deg]'];
+                            $rotation = $rotations[$index % count($rotations)];
+                            
+                            $sizeClasses = [
+                                'small' => 'w-36 sm:w-40',
+                                'medium' => 'w-44 sm:w-52',
+                                'large' => 'w-48 sm:w-60'
+                            ];
+                            $sizeClass = $sizeClasses[$photo->size] ?? 'w-44 sm:w-52';
+                        @endphp
                         
-                        <div class="polaroid-card bg-white p-3 pb-8 border border-gray-200 rounded-sm transform rotate-[4deg] w-44 sm:w-52 shadow-sm">
-                            <img src="{{ asset('images/friends_polaroid.png') }}" class="w-full h-40 object-cover filter sepia-[0.1]" alt="Default">
-                            <p class="font-hand text-center text-espresso text-lg mt-3">Upacara Senin Pagi 🏫</p>
-                        </div>
-                        
-                        <div class="polaroid-card bg-white p-3 pb-8 border border-gray-200 rounded-sm transform rotate-[-2deg] w-44 sm:w-52 shadow-sm">
-                            <img src="{{ asset('images/friends_polaroid.png') }}" class="w-full h-40 object-cover filter sepia-[0.5]" alt="Default">
-                            <p class="font-hand text-center text-espresso text-lg mt-3">Kelulusan SMA tercinta 🎉</p>
-                        </div>
-                    @else
-                        <!-- Database Uploaded Photos -->
-                        @foreach($photos as $index => $photo)
-                            @php
-                                $rotations = ['rotate-[-3deg]', 'rotate-[4deg]', 'rotate-[-2deg]', 'rotate-[3deg]', 'rotate-[-4deg]'];
-                                $rotation = $rotations[$index % count($rotations)];
-                                
-                                $sizeClasses = [
-                                    'small' => 'w-36 sm:w-40',
-                                    'medium' => 'w-40 sm:w-48',
-                                    'large' => 'w-44 sm:w-56'
-                                ];
-                                $sizeClass = $sizeClasses[$photo->size] ?? 'w-40 sm:w-48';
-                            @endphp
-                            <div class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm {{ $rotation }} {{ $sizeClass }} shadow-md hover:scale-105 transition-transform duration-200">
-                                
-                                <!-- Delete Button -->
-                                <form action="{{ route('gallery.destroy', $photo->id) }}" method="POST" class="absolute -top-2 -right-2 z-30">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-red-600 hover:bg-red-800 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md border-2 border-white transition" onclick="return confirm('Hapus foto memori ini?')" title="Hapus foto">
-                                        &times;
-                                    </button>
-                                </form>
+                        <div class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm {{ $rotation }} {{ $sizeClass }} shadow-md hover:scale-105 transition-transform duration-200">
+                            
+                            <!-- Delete Button (Tombol Silang di Ujung Polaroid) -->
+                            <form action="{{ route('gallery.destroy', $photo->id) }}" method="POST" class="absolute -top-2.5 -right-2.5 z-30">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md border-2 border-white transition transform hover:scale-110" onclick="return confirm('Hapus foto memori ini?')" title="Hapus foto">
+                                    &times;
+                                </button>
+                            </form>
 
-                                <img src="{{ asset($photo->image_path) }}" class="w-full h-40 object-cover rounded-sm" alt="Memory">
-                                <p class="font-hand text-center text-espresso text-lg mt-3">{{ $photo->caption }}</p>
-                            </div>
-                        @endforeach
-                    @endif
+                            <img src="{{ asset($photo->image_path) }}" class="w-full h-44 object-cover rounded-sm" alt="Memori">
+                            <p class="font-hand text-center text-espresso text-lg mt-3 select-none">{{ $photo->caption }}</p>
+                        </div>
+                    @empty
+                        <!-- Template jika belum ada foto yang diunggah -->
+                        <div class="col-span-full py-12 text-center flex flex-col items-center justify-center border-2 border-dashed border-cocoa-light/40 rounded-xl bg-cream-light/30 w-full p-6">
+                            <span class="text-4xl mb-2">📸</span>
+                            <p class="font-serif text-espresso font-semibold">Galeri masih kosong!</p>
+                            <p class="font-serif text-xs text-espresso/70 mt-1">Unggah foto memorimu lewat formulir di sebelah kiri untuk memunculkan foto polaroid beserta tombol hapusnya.</p>
+                        </div>
+                    @endforelse
 
                 </div>
             </div>
