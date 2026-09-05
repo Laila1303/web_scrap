@@ -4,7 +4,12 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// 1. Buat direktori sementara di /tmp
+// Tampilkan error PHP ke browser
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+// Direktori temporary
 $tmpDirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
@@ -20,35 +25,37 @@ foreach ($tmpDirs as $dir) {
     }
 }
 
-// 2. Set environment paths
+// Environment cache & logging ke STDERR
 putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
 putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
 putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
 putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
 putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
+putenv('LOG_CHANNEL=stderr');
+putenv('APP_DEBUG=true');
 
-// Set CA Bundle path untuk Linux/Vercel
-if (file_exists('/etc/pki/tls/certs/ca-bundle.crt')) {
-    putenv('MYSQL_ATTR_SSL_CA=/etc/pki/tls/certs/ca-bundle.crt');
-    $_ENV['MYSQL_ATTR_SSL_CA'] = '/etc/pki/tls/certs/ca-bundle.crt';
-} elseif (file_exists('/etc/ssl/certs/ca-certificates.crt')) {
-    putenv('MYSQL_ATTR_SSL_CA=/etc/ssl/certs/ca-certificates.crt');
-    $_ENV['MYSQL_ATTR_SSL_CA'] = '/etc/ssl/certs/ca-certificates.crt';
-}
-
-// 3. Autoloader
+// Autoload
 require __DIR__ . '/../vendor/autoload.php';
 
-// 4. Inisialisasi Aplikasi Laravel & Storage
+// Bootstrap
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 $app->useStoragePath('/tmp/storage');
 
-// 5. Tangani Request
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-$response = $kernel->handle(
-    $request = Request::capture()
-)->send();
-
-$kernel->terminate($request, $response);
+try {
+    $response = $kernel->handle(
+        $request = Request::capture()
+    );
+    $response->send();
+    $kernel->terminate($request, $response);
+} catch (\Throwable $e) {
+    // Tangkap error secara langsung dan cetak ke layar
+    http_response_code(500);
+    header('Content-Type: text/html; charset=utf-8');
+    echo "<h1>Laravel Serverless Error Detail:</h1>";
+    echo "<h3>" . htmlspecialchars($e->getMessage()) . "</h3>";
+    echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . " on line " . $e->getLine() . "</p>";
+    echo "<pre style='background:#f4f4f4;padding:15px;border-radius:5px;overflow:auto;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+}
