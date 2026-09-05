@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\GalleryPhoto;
-use Illuminate\Support\Str;
 
 class GalleryController extends Controller
 {
@@ -18,17 +16,21 @@ class GalleryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240', // Limit to 10MB
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'caption' => 'nullable|string|max:200',
             'size' => 'required|in:small,medium,large',
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('gallery', 'public');
-            $imagePath = 'storage/' . $path;
+            $image = $request->file('image');
+            
+            // Konversi gambar ke format Base64 Data URL agar permanen di Vercel
+            $mime = $image->getMimeType();
+            $base64 = base64_encode(file_get_contents($image->getRealPath()));
+            $dataUrl = "data:{$mime};base64,{$base64}";
 
             GalleryPhoto::create([
-                'image_path' => $imagePath,
+                'image_path' => $dataUrl,
                 'caption' => $request->caption ?: 'Memori Indah',
                 'size' => $request->size,
             ]);
@@ -42,13 +44,6 @@ class GalleryController extends Controller
     public function destroy($id)
     {
         $photo = GalleryPhoto::findOrFail($id);
-        
-        // Remove physical file from public path
-        $filePath = public_path($photo->image_path);
-        if (file_exists($filePath)) {
-            @unlink($filePath);
-        }
-
         $photo->delete();
 
         return redirect()->back()->with('success', 'Foto memori berhasil dihapus!');

@@ -60,7 +60,7 @@
                     <!-- Image Input -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Pilih Foto:</label>
-                        <input type="file" name="image" required class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none">
+                        <input type="file" name="image" accept="image/*" required class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none">
                     </div>
                     
                     <!-- Caption Input -->
@@ -89,64 +89,41 @@
             <div class="lg:col-span-8">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-center justify-items-center">
                     
-                    @if($photos->isEmpty())
-                        <!-- Default Polaroid 1 -->
-                        <div id="polaroid-sample-1" class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm rotate-[-3deg] w-44 sm:w-52 shadow-md">
-                            <button type="button" onclick="document.getElementById('polaroid-sample-1').remove()" class="absolute -top-3 -right-3 bg-red-600 hover:bg-red-800 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md border-2 border-white cursor-pointer z-30" title="Hapus foto template ini">
-                                &times;
-                            </button>
-                            <img src="{{ asset('images/friends_polaroid.png') }}" class="w-full h-40 object-cover filter sepia-[0.3]" alt="Sample 1">
-                            <p class="font-hand text-center text-espresso text-lg mt-3 rotate-[1deg]">Candid Kantin SMA 🍜</p>
-                        </div>
-                        
-                        <!-- Default Polaroid 2 -->
-                        <div id="polaroid-sample-2" class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm rotate-[4deg] w-44 sm:w-52 shadow-md">
-                            <button type="button" onclick="document.getElementById('polaroid-sample-2').remove()" class="absolute -top-3 -right-3 bg-red-600 hover:bg-red-800 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md border-2 border-white cursor-pointer z-30" title="Hapus foto template ini">
-                                &times;
-                            </button>
-                            <img src="{{ asset('images/friends_polaroid.png') }}" class="w-full h-40 object-cover filter sepia-[0.1]" alt="Sample 2">
-                            <p class="font-hand text-center text-espresso text-lg mt-3">Upacara Senin Pagi 🏫</p>
-                        </div>
-                        
-                        <!-- Default Polaroid 3 -->
-                        <div id="polaroid-sample-3" class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm rotate-[-2deg] w-44 sm:w-52 shadow-md">
-                            <button type="button" onclick="document.getElementById('polaroid-sample-3').remove()" class="absolute -top-3 -right-3 bg-red-600 hover:bg-red-800 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md border-2 border-white cursor-pointer z-30" title="Hapus foto template ini">
-                                &times;
-                            </button>
-                            <img src="{{ asset('images/friends_polaroid.png') }}" class="w-full h-40 object-cover filter sepia-[0.5]" alt="Sample 3">
-                            <p class="font-hand text-center text-espresso text-lg mt-3">Kelulusan SMA tercinta 🎉</p>
-                        </div>
-                    @else
-                        <!-- Database Uploaded Photos -->
-                        @foreach($photos as $index => $photo)
-                            @php
-                                $rotations = ['rotate-[-3deg]', 'rotate-[4deg]', 'rotate-[-2deg]', 'rotate-[3deg]', 'rotate-[-4deg]'];
-                                $rotation = $rotations[$index % count($rotations)];
-                                
-                                $sizeClasses = [
-                                    'small' => 'w-36 sm:w-40',
-                                    'medium' => 'w-44 sm:w-52',
-                                    'large' => 'w-48 sm:w-60'
-                                ];
-                                $sizeClass = $sizeClasses[$photo->size] ?? 'w-44 sm:w-52';
-                            @endphp
-                            <div class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm {{ $rotation }} {{ $sizeClass }} shadow-md hover:scale-105 transition-transform duration-200">
-                                
-                                <!-- Tombol Hapus Merah di Sudut Kanan Atas -->
-                                <form action="{{ route('gallery.destroy', $photo->id) }}" method="POST" class="absolute -top-3 -right-3 z-30">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-red-600 hover:bg-red-800 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md border-2 border-white cursor-pointer transition transform hover:scale-110" onclick="return confirm('Hapus foto memori ini?')" title="Hapus foto">
-                                        &times;
-                                    </button>
-                                </form>
+                    @forelse($photos as $index => $photo)
+                        @php
+                            $rotations = ['rotate-[-3deg]', 'rotate-[4deg]', 'rotate-[-2deg]', 'rotate-[3deg]', 'rotate-[-4deg]'];
+                            $rotation = $rotations[$index % count($rotations)];
+                            
+                            $sizeClasses = [
+                                'small' => 'w-36 sm:w-40',
+                                'medium' => 'w-44 sm:w-52',
+                                'large' => 'w-48 sm:w-60'
+                            ];
+                            $sizeClass = $sizeClasses[$photo->size] ?? 'w-44 sm:w-52';
+                        @endphp
+                        <div class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm {{ $rotation }} {{ $sizeClass }} shadow-md hover:scale-105 transition-transform duration-200">
+                            
+                            <!-- Tombol Hapus Merah di Sudut Kanan Atas -->
+                            <form action="{{ route('gallery.destroy', $photo->id) }}" method="POST" class="absolute -top-3 -right-3 z-30">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-red-600 hover:bg-red-800 text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shadow-md border-2 border-white cursor-pointer transition transform hover:scale-110" onclick="return confirm('Hapus foto memori ini?')" title="Hapus foto">
+                                    &times;
+                                </button>
+                            </form>
 
-                                <!-- Support Base64 & Local Asset Path -->
-                                <img src="{{ \Illuminate\Support\Str::startsWith($photo->image_path, 'data:') ? $photo->image_path : asset($photo->image_path) }}" class="w-full h-40 object-cover rounded-sm" alt="Memory">
-                                <p class="font-hand text-center text-espresso text-lg mt-3">{{ $photo->caption }}</p>
-                            </div>
-                        @endforeach
-                    @endif
+                            <!-- Render Image -->
+                            <img src="{{ str_starts_with($photo->image_path, 'data:') ? $photo->image_path : asset($photo->image_path) }}" class="w-full h-40 object-cover rounded-sm" alt="Memory">
+                            <p class="font-hand text-center text-espresso text-lg mt-3">{{ $photo->caption }}</p>
+                        </div>
+                    @empty
+                        <!-- Pesan Saat Galeri Kosong -->
+                        <div class="col-span-full py-16 text-center flex flex-col items-center justify-center border-2 border-dashed border-cocoa-light/40 rounded-xl bg-cream-light/30 w-full p-8">
+                            <span class="text-4xl mb-2">📸</span>
+                            <p class="font-serif text-espresso font-bold text-base">Belum ada foto memori</p>
+                            <p class="font-serif text-xs text-espresso/70 mt-1">Gunakan formulir di sebelah kiri untuk menambahkan foto scrapbook pertamamu!</p>
+                        </div>
+                    @endforelse
 
                 </div>
             </div>
