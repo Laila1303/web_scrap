@@ -16,41 +16,18 @@ class GalleryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Batas 5MB
             'caption' => 'nullable|string|max:200',
             'size' => 'required|in:small,medium,large',
         ]);
 
         if ($request->hasFile('image')) {
             $imageFile = $request->file('image');
-            $imagePath = $imageFile->getRealPath();
-
-            // Resize & kompres gambar agar ukuran Base64 sangat ringan
-            $sourceImage = @imagecreatefromstring(file_get_contents($imagePath));
-
-            if ($sourceImage !== false) {
-                $origWidth = imagesx($sourceImage);
-                $origHeight = imagesy($sourceImage);
-                $targetWidth = 800; // Standar optimal polaroid
-
-                if ($origWidth > $targetWidth) {
-                    $targetHeight = (int) (($origHeight / $origWidth) * $targetWidth);
-                    $resizedImage = imagecreatetruecolor($targetWidth, $targetHeight);
-                    imagecopyresampled($resizedImage, $sourceImage, 0, 0, 0, 0, $targetWidth, $targetHeight, $origWidth, $origHeight);
-                    imagedestroy($sourceImage);
-                    $sourceImage = $resizedImage;
-                }
-
-                ob_start();
-                imagejpeg($sourceImage, null, 75); // Kualitas JPEG 75%
-                $compressedData = ob_get_clean();
-                imagedestroy($sourceImage);
-
-                $dataUrl = 'data:image/jpeg;base64,' . base64_encode($compressedData);
-            } else {
-                $mime = $imageFile->getMimeType();
-                $dataUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($imagePath));
-            }
+            
+            // Konversi langsung file gambar ke format Data URL Base64 tanpa ekstensi GD
+            $mimeType = $imageFile->getMimeType();
+            $base64Data = base64_encode(file_get_contents($imageFile->getRealPath()));
+            $dataUrl = "data:{$mimeType};base64,{$base64Data}";
 
             GalleryPhoto::create([
                 'image_path' => $dataUrl,
