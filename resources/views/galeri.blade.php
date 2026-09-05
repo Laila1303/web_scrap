@@ -141,7 +141,8 @@
                                     </button>
                                 </form>
 
-                                <img src="{{ asset($photo->image_path) }}" class="w-full h-40 object-cover rounded-sm" alt="Memory">
+                                <!-- Support Base64 & Local Asset Path -->
+                                <img src="{{ \Illuminate\Support\Str::startsWith($photo->image_path, 'data:') ? $photo->image_path : asset($photo->image_path) }}" class="w-full h-40 object-cover rounded-sm" alt="Memory">
                                 <p class="font-hand text-center text-espresso text-lg mt-3">{{ $photo->caption }}</p>
                             </div>
                         @endforeach
