@@ -15,9 +15,8 @@ class GalleryController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input dengan batas maksimal 4MB (4096 KB)
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:4096', 
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Batas 2MB
             'caption' => 'nullable|string|max:200',
             'size' => 'required|in:small,medium,large',
         ]);
@@ -25,12 +24,10 @@ class GalleryController extends Controller
         if ($request->hasFile('image')) {
             $imageFile = $request->file('image');
             
-            // Konversi langsung file gambar ke format Data URL Base64
             $mimeType = $imageFile->getMimeType();
             $base64Data = base64_encode(file_get_contents($imageFile->getRealPath()));
             $dataUrl = "data:{$mimeType};base64,{$base64Data}";
 
-            // Simpan ke kolom LONGTEXT TiDB
             GalleryPhoto::create([
                 'image_path' => $dataUrl,
                 'caption' => $request->caption ?: 'Memori Indah',

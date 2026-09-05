@@ -55,7 +55,7 @@
                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-tiramisu-dark/60 w-24 h-6 rotate-[-1deg] border border-espresso opacity-70"></div>
                 
                 <h2 class="font-serif text-lg font-bold text-espresso-dark mt-2">[ 📝 UNGGAH MEMORI BARU ]</h2>
-                <p class="font-serif text-xs text-espresso/70 leading-relaxed">Tambahkan kenangan foto terbaru (Maks. 4MB)</p>
+                <p class="font-serif text-xs text-espresso/70 leading-relaxed">Tambahkan kenangan foto terbaru (Maks. 2MB)</p>
                 
                 <form action="{{ route('gallery.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mt-2">
                     @csrf
@@ -128,7 +128,6 @@
                             <p class="font-hand text-center text-espresso text-lg mt-3">{{ $photo->caption }}</p>
                         </div>
                     @empty
-                        <!-- Pesan Saat Galeri Kosong -->
                         <div class="col-span-full py-16 text-center flex flex-col items-center justify-center border-2 border-dashed border-cocoa-light/40 rounded-xl bg-cream-light/30 w-full p-8">
                             <span class="text-4xl mb-2">📸</span>
                             <p class="font-serif text-espresso font-bold text-base">Belum ada foto memori</p>
