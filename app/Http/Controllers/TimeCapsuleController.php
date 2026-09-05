@@ -21,7 +21,7 @@ class TimeCapsuleController extends Controller
             'content' => 'required|string',
             'type' => 'required|in:letter,time_capsule',
             'unlock_relative' => 'nullable|string',
-            'unlock_custom' => 'required_if:unlock_relative,custom|nullable|date|after_or_equal:today',
+            'unlock_custom' => 'nullable|date',
         ]);
 
         $unlockAt = Carbon::now();
@@ -30,17 +30,20 @@ class TimeCapsuleController extends Controller
             // Surat biasa langsung terbuka seketika
             $unlockAt = Carbon::now()->subMinutes(1);
         } else {
-            // Pengaturan jadwal kapsul waktu
-            if ($request->unlock_relative === '1_year') {
-                $unlockAt = Carbon::now()->addYear();
-            } elseif ($request->unlock_relative === '2_years') {
+            // Logika pembukaan kapsul waktu
+            if ($request->unlock_relative === '2_years') {
                 $unlockAt = Carbon::now()->addYears(2);
             } elseif ($request->unlock_relative === '5_years') {
                 $unlockAt = Carbon::now()->addYears(5);
-            } elseif ($request->unlock_relative === 'custom' && $request->unlock_custom) {
-                // Set tanggal kustom dengan menyamakan jam & menit saat ini
-                $unlockAt = Carbon::parse($request->unlock_custom)->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+            } elseif ($request->unlock_relative === 'custom') {
+                if (!empty($request->unlock_custom)) {
+                    $unlockAt = Carbon::parse($request->unlock_custom)->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+                } else {
+                    // Fallback jika tanggal tidak sengaja kosong: dibuat terkunci 1 tahun ke depan
+                    $unlockAt = Carbon::now()->addYear();
+                }
             } else {
+                // Default: 1 tahun
                 $unlockAt = Carbon::now()->addYear();
             }
         }

@@ -66,7 +66,7 @@
                     <!-- Type Selection -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Jenis Kiriman:</label>
-                        <select name="type" id="type-select" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                        <select name="type" id="type-select" onchange="document.getElementById('unlock-options-container').style.display = (this.value === 'letter' ? 'none' : 'flex')" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
                             <option value="time_capsule" @selected(old('type', 'time_capsule') === 'time_capsule')>🔒 Kapsul Waktu (Terkunci sampai tanggal tertentu)</option>
                             <option value="letter" @selected(old('type') === 'letter')>🔓 Surat Biasa (Langsung bisa dibuka Kayla hari ini)</option>
                         </select>
@@ -76,7 +76,7 @@
                     <div id="unlock-options-container" class="flex flex-col gap-3">
                         <div class="flex flex-col gap-1">
                             <label class="font-serif text-xs font-bold text-espresso">Jadwal Pembukaan Kapsul:</label>
-                            <select name="unlock_relative" id="relative-select" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                            <select name="unlock_relative" id="relative-select" onchange="document.getElementById('custom-date-container').style.display = (this.value === 'custom' ? 'block' : 'none')" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
                                 <option value="1_year" @selected(old('unlock_relative') === '1_year' || !old('unlock_relative'))>1 Tahun Lagi ({{ (int)date('Y') + 1 }})</option>
                                 <option value="2_years" @selected(old('unlock_relative') === '2_years')>2 Tahun Lagi ({{ (int)date('Y') + 2 }})</option>
                                 <option value="5_years" @selected(old('unlock_relative') === '5_years')>5 Tahun Lagi ({{ (int)date('Y') + 5 }})</option>
@@ -85,9 +85,9 @@
                         </div>
                         
                         <!-- Custom Date Picker -->
-                        <div id="custom-date-container" style="{{ old('unlock_relative') === 'custom' ? 'display: block;' : 'display: none;' }}" class="flex flex-col gap-1">
-                            <label class="font-serif text-xs font-bold text-espresso text-red-700">📅 Tentukan Tanggal Buka Kapsul:</label>
-                            <input type="date" id="unlock_custom_input" name="unlock_custom" min="{{ date('Y-m-d') }}" value="{{ old('unlock_custom') }}" class="w-full text-sm bg-white p-2.5 rounded border-2 border-espresso focus:outline-none cursor-pointer shadow-inner">
+                        <div id="custom-date-container" style="{{ old('unlock_relative') === 'custom' ? 'display: block;' : 'display: none;' }}" class="flex-col gap-1">
+                            <label class="font-serif text-xs font-bold text-red-800">📅 Tentukan Tanggal Buka Kapsul:</label>
+                            <input type="date" id="unlock_custom_input" name="unlock_custom" min="{{ date('Y-m-d') }}" value="{{ old('unlock_custom', date('Y-m-d', strtotime('+1 day'))) }}" class="w-full text-sm bg-white p-2.5 rounded border-2 border-espresso focus:outline-none cursor-pointer">
                         </div>
                     </div>
 
@@ -185,34 +185,6 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const typeSelect = document.getElementById('type-select');
-            const relativeSelect = document.getElementById('relative-select');
-            const unlockContainer = document.getElementById('unlock-options-container');
-            const customContainer = document.getElementById('custom-date-container');
-            const customInput = document.getElementById('unlock_custom_input');
-
-            function updateVisibility() {
-                if (typeSelect.value === 'letter') {
-                    unlockContainer.style.display = 'none';
-                    customInput.required = false;
-                } else {
-                    unlockContainer.style.display = 'flex';
-                    if (relativeSelect.value === 'custom') {
-                        customContainer.style.display = 'block';
-                        customInput.required = true;
-                    } else {
-                        customContainer.style.display = 'none';
-                        customInput.required = false;
-                    }
-                }
-            }
-
-            typeSelect.addEventListener('change', updateVisibility);
-            relativeSelect.addEventListener('change', updateVisibility);
-            updateVisibility();
-        });
-
         function readCapsule(sender, content, date) {
             document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
             document.getElementById('modal-content').innerHTML = content;
