@@ -28,6 +28,7 @@
             <span class="font-hand text-xl text-cocoa-medium">Memori SMA &amp; Kebersamaan</span>
         </header>
 
+        <!-- Global Error Alert -->
         @if ($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative font-serif text-sm z-50">
                 <strong class="font-bold">Gagal menyimpan foto:</strong>
@@ -39,6 +40,7 @@
             </div>
         @endif
 
+        <!-- Success Alert -->
         @if (session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative font-serif text-sm z-50">
                 {{ session('success') }}
@@ -53,33 +55,42 @@
                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-tiramisu-dark/60 w-24 h-6 rotate-[-1deg] border border-espresso opacity-70"></div>
                 
                 <h2 class="font-serif text-lg font-bold text-espresso-dark mt-2">[ 📝 UNGGAH MEMORI BARU ]</h2>
-                <p class="font-serif text-xs text-espresso/70 leading-relaxed">Tambahkan kenangan foto terbaru</p>
+                <p class="font-serif text-xs text-espresso/70 leading-relaxed">Tambahkan kenangan foto terbaru (Maks. 2MB)</p>
                 
                 <form action="{{ route('gallery.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mt-2">
                     @csrf
                     <!-- Image Input -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Pilih Foto:</label>
-                        <input type="file" name="image" accept="image/*" required class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none">
+                        <input type="file" name="image" accept="image/*" required class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-serif file:bg-espresso file:text-cream-light hover:file:bg-cocoa-medium cursor-pointer">
+                        @error('image')
+                            <span class="text-red-700 text-[11px] font-bold mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
                     
                     <!-- Caption Input -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Catatan Tulisan Tangan:</label>
-                        <input type="text" name="caption" placeholder="Contoh: Candid pas hangout 🍜" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light font-hand focus:outline-none" required>
+                        <input type="text" name="caption" value="{{ old('caption') }}" placeholder="Contoh: Candid pas hangout 🍜" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light font-hand focus:outline-none" required>
+                        @error('caption')
+                            <span class="text-red-700 text-[11px] font-bold mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <!-- Size Input -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Ukuran Foto:</label>
-                        <select name="size" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none">
-                            <option value="small">Kecil (170px)</option>
-                            <option value="medium" selected>Sedang (240px)</option>
-                            <option value="large">Besar (290px)</option>
+                        <select name="size" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                            <option value="small" @selected(old('size') === 'small')>Kecil (170px)</option>
+                            <option value="medium" @selected(old('size', 'medium') === 'medium')>Sedang (240px)</option>
+                            <option value="large" @selected(old('size') === 'large')>Besar (290px)</option>
                         </select>
+                        @error('size')
+                            <span class="text-red-700 text-[11px] font-bold mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    <button type="submit" class="w-full py-2 bg-espresso text-cream-light font-serif font-bold text-sm rounded shadow hover:bg-cocoa-medium transition mt-2">
+                    <button type="submit" class="w-full py-2.5 bg-espresso text-cream-light font-serif font-bold text-sm rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
                         SIMPAN DI SCRAPBOOK
                     </button>
                 </form>
