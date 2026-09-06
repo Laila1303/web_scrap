@@ -8,6 +8,18 @@ define('LARAVEL_START', microtime(true));
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
+// Diagnostic endpoint untuk memeriksa apakah PHP runtime berhasil berjalan
+if (isset($_GET['test']) || (isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/health-check'))) {
+    header('Content-Type: text/plain');
+    echo "=== VERCEL PHP DIAGNOSTIC ===\n";
+    echo 'PHP Version: '.PHP_VERSION."\n";
+    echo 'Vendor autoload exists: '.(file_exists(__DIR__.'/../vendor/autoload.php') ? 'YES' : 'NO')."\n";
+    echo 'Bootstrap app exists: '.(file_exists(__DIR__.'/../bootstrap/app.php') ? 'YES' : 'NO')."\n";
+    echo '/tmp writable: '.(is_writable('/tmp') ? 'YES' : 'NO')."\n";
+    echo 'Loaded extensions: '.implode(', ', get_loaded_extensions())."\n";
+    exit;
+}
+
 try {
     // 1. Buat folder penyimpanan dinamis di /tmp (satu-satunya folder writeable di Vercel)
     $tmpDirs = [
