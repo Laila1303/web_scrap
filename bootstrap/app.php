@@ -15,11 +15,4 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })
-    ->registered(function ($app) {
-        // Jika berjalan di lingkungan Vercel / AWS Lambda, pindahkan storage ke /tmp
-        if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
-            $app->useStoragePath('/tmp/storage');
-        }
-    })
-    ->create();
+    })->create();
