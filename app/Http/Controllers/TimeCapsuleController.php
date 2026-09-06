@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\TimeCapsule;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class TimeCapsuleController extends Controller
 {
     public function index()
     {
         $capsules = TimeCapsule::orderBy('created_at', 'desc')->get();
+
         return view('kapsul_waktu', compact('capsules'));
     }
 
@@ -36,7 +37,7 @@ class TimeCapsuleController extends Controller
             } elseif ($request->unlock_relative === '5_years') {
                 $unlockAt = Carbon::now()->addYears(5);
             } elseif ($request->unlock_relative === 'custom') {
-                if (!empty($request->unlock_custom)) {
+                if (! empty($request->unlock_custom)) {
                     $unlockAt = Carbon::parse($request->unlock_custom)->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
                 } else {
                     // Fallback jika tanggal tidak sengaja kosong: dibuat terkunci 1 tahun ke depan

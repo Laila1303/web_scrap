@@ -140,7 +140,10 @@
                             <!-- Action -->
                             <div>
                                 @if($isUnlocked)
-                                    <button onclick="readCapsule('{{ e($capsule->sender) }}', '{!! addslashes(nl2br(e($capsule->content))) !!}', '{{ $capsule->created_at->format('d M Y') }}')" class="px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer">
+                                    <div id="capsule-data-{{ $capsule->id }}" class="hidden"
+                                         data-sender="{{ $capsule->sender }}"
+                                         data-date="{{ $capsule->created_at->format('d M Y') }}">{!! nl2br(e($capsule->content)) !!}</div>
+                                    <button type="button" onclick="openCapsule({{ $capsule->id }})" class="px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer">
                                         BACA SEKARANG &rarr;
                                     </button>
                                 @else
@@ -185,6 +188,19 @@
     </div>
 
     <script>
+        function openCapsule(id) {
+            const dataEl = document.getElementById('capsule-data-' + id);
+            if (!dataEl) return;
+            const sender = dataEl.getAttribute('data-sender') || 'Sahabat';
+            const date = dataEl.getAttribute('data-date') || '';
+            const content = dataEl.innerHTML;
+
+            document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
+            document.getElementById('modal-content').innerHTML = content;
+            document.getElementById('modal-date').textContent = 'Dikirim pada: ' + date;
+            document.getElementById('read-modal').style.display = 'flex';
+        }
+
         function readCapsule(sender, content, date) {
             document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
             document.getElementById('modal-content').innerHTML = content;

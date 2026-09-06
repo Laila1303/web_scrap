@@ -57,15 +57,23 @@
                 <h2 class="font-serif text-lg font-bold text-espresso-dark mt-2">[ 📝 UNGGAH MEMORI BARU ]</h2>
                 <p class="font-serif text-xs text-espresso/70 leading-relaxed">Tambahkan kenangan foto terbaru (Maks. 2MB)</p>
                 
-                <form action="{{ route('gallery.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mt-2">
+                <form id="gallery-form" action="{{ route('gallery.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mt-2" onsubmit="handleFormSubmit(event)">
                     @csrf
                     <!-- Image Input -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Pilih Foto:</label>
-                        <input type="file" name="image" accept="image/*" required class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-serif file:bg-espresso file:text-cream-light hover:file:bg-cocoa-medium cursor-pointer">
+                        <input type="file" id="image-input" name="image" accept="image/*" required class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-serif file:bg-espresso file:text-cream-light hover:file:bg-cocoa-medium cursor-pointer" onchange="handleImageSelection(event)">
                         @error('image')
                             <span class="text-red-700 text-[11px] font-bold mt-1">{{ $message }}</span>
                         @enderror
+                        <!-- Instant Preview Container -->
+                        <div id="preview-container" class="hidden mt-2 p-2 bg-white/70 rounded border border-cocoa-light/30 flex items-center gap-3">
+                            <img id="image-preview" src="#" alt="Preview" class="w-16 h-16 object-cover rounded shadow-sm">
+                            <div class="flex flex-col">
+                                <span class="font-serif text-[11px] font-bold text-espresso">Foto siap disimpan</span>
+                                <span id="file-size-info" class="font-hand text-xs text-cocoa-medium">Ukuran teroptimasi</span>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Caption Input -->
@@ -90,8 +98,8 @@
                         @enderror
                     </div>
 
-                    <button type="submit" class="w-full py-2.5 bg-espresso text-cream-light font-serif font-bold text-sm rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
-                        SIMPAN DI SCRAPBOOK
+                    <button type="submit" id="submit-btn" class="w-full py-2.5 bg-espresso text-cream-light font-serif font-bold text-sm rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer flex items-center justify-center gap-2">
+                        <span>SIMPAN DI SCRAPBOOK</span>
                     </button>
                 </form>
             </div>
@@ -140,5 +148,85 @@
 
         </div>
     </div>
+
+    <script>
+        async function handleImageSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const previewContainer = document.getElementById('preview-container');
+            const previewImg = document.getElementById('image-preview');
+            const sizeInfo = document.getElementById('file-size-info');
+
+            // Read original file
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Resize to max 1200px width/height maintaining aspect ratio
+                    const maxDim = 1200;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round(height * (maxDim / width));
+                            width = maxDim;
+                        } else {
+                            width = Math.round(width * (maxDim / height));
+                            height = maxDim;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG with 0.8 quality
+                    canvas.toBlob(function(blob) {
+                        if (!blob) return;
+
+                        // Create optimized File object
+                        const optimizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+
+                        // Replace the file in the file input using DataTransfer
+                        try {
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(optimizedFile);
+                            document.getElementById('image-input').files = dataTransfer.files;
+                        } catch (err) {
+                            console.warn("DataTransfer not supported, proceeding with original file:", err);
+                        }
+
+                        // Show preview and size info
+                        previewImg.src = canvas.toDataURL('image/jpeg', 0.8);
+                        const originalKB = Math.round(file.size / 1024);
+                        const optimizedKB = Math.round(blob.size / 1024);
+                        sizeInfo.textContent = `${originalKB} KB → ${optimizedKB} KB (Siap diunggah)`;
+                        previewContainer.classList.remove('hidden');
+                    }, 'image/jpeg', 0.8);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleFormSubmit(event) {
+            const btn = document.getElementById('submit-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-75', 'cursor-not-allowed');
+                btn.innerHTML = `
+                    <div class="animate-spin rounded-full h-4 w-4 border-2 border-cream-light border-t-transparent"></div>
+                    <span>Menyimpan ke scrapbook...</span>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>

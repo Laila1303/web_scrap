@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
@@ -15,7 +16,7 @@ $tmpDirs = [
 ];
 
 foreach ($tmpDirs as $dir) {
-    if (!is_dir($dir)) {
+    if (! is_dir($dir)) {
         mkdir($dir, 0777, true);
     }
 }
@@ -32,13 +33,13 @@ putenv('CACHE_STORE=array');
 putenv('LOG_CHANNEL=stderr');
 
 // 3. Autoload & Bootstrap
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 $app->useStoragePath('/tmp/storage');
 
 // 4. Handle Request
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+$kernel = $app->make(Kernel::class);
 
 $response = $kernel->handle(
     $request = Request::capture()

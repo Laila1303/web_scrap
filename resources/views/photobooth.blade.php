@@ -271,56 +271,377 @@
             label.classList.add('hidden');
         }
 
-        async function sendToBackend() {
+        function loadImage(src) {
+            return new Promise((resolve) => {
+                if (!src) return resolve(null);
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = src;
+            });
+        }
+
+        function drawRoundedRect(ctx, x, y, width, height, radius, fillStyle = null, strokeStyle = null, lineWidth = 1) {
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(x, y, width, height, radius);
+            } else {
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+            }
+            if (fillStyle) {
+                ctx.fillStyle = fillStyle;
+                ctx.fill();
+            }
+            if (strokeStyle) {
+                ctx.strokeStyle = strokeStyle;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+            }
+        }
+
+        function drawBarcode(ctx, x, y, width, height, color) {
+            ctx.fillStyle = color;
+            let currX = x;
+            let seed = 42;
+            function nextRand(min, max) {
+                seed = (seed * 9301 + 49297) % 233280;
+                const rnd = seed / 233280;
+                return Math.floor(min + rnd * (max - min + 1));
+            }
+            while (currX < x + width) {
+                const barW = nextRand(2, 6);
+                ctx.fillRect(currX, y, barW, height);
+                currX += barW + nextRand(2, 5);
+            }
+        }
+
+        async function generateStripClientSide() {
             const placeholder = document.getElementById('strip-placeholder');
             const finalStrip = document.getElementById('final-strip');
             const downloadBtn = document.getElementById('download-btn');
             
             placeholder.innerHTML = `
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-espresso mb-3"></div>
-                <p class="font-hand text-lg text-cocoa-medium">Sedang menjahit foto strip kustom kamu...</p>
+                <p class="font-hand text-lg text-cocoa-medium">Sedang mencetak foto strip kustom kamu...</p>
             `;
+            placeholder.classList.remove('hidden');
+            finalStrip.classList.add('hidden');
+            downloadBtn.classList.add('hidden');
 
-            const headerText = document.getElementById('header_text').value;
-            const footerText = document.getElementById('footer_text').value;
-            const styleTheme = document.getElementById('style_theme').value;
-            const photoShape = document.getElementById('photo_shape').value;
+            const headerText = document.getElementById('header_text').value || 'Capturing Moments';
+            const footerText = document.getElementById('footer_text').value || 'On the road, 20!';
+            const styleTheme = document.getElementById('style_theme').value || 'classic_vintage';
+            const photoShape = document.getElementById('photo_shape').value || 'square';
 
             try {
-                const response = await fetch("{{ route('photobooth.generate') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        image1: capturedImages[0],
-                        image2: capturedImages[1],
-                        image3: capturedImages[2],
-                        header_text: headerText,
-                        footer_text: footerText,
-                        template_color: styleTheme,
-                        photo_shape: photoShape
-                    })
-                });
+                // Dimensions matching original Python script
+                const stripW = 600;
+                const photoW = 440;
+                const photoH = (photoShape === 'oval') ? 300 : 330;
+                const topPad = 200;
+                const gap = 25;
+                const botPad = 220;
+                const stripH = topPad + (3 * photoH) + (2 * gap) + botPad;
 
-                const result = await response.json();
-                if (result.success) {
-                    placeholder.classList.add('hidden');
-                    finalStrip.src = result.url;
-                    finalStrip.classList.remove('hidden');
-                    downloadBtn.href = result.url;
-                    downloadBtn.classList.remove('hidden');
-                } else {
-                    alert('Gagal membuat strip: ' + result.message);
+                const canvas = document.createElement('canvas');
+                canvas.width = stripW;
+                canvas.height = stripH;
+                const ctx = canvas.getContext('2d');
+
+                // 1. Background rendering
+                if (styleTheme === 'classic_vintage') {
+                    ctx.fillStyle = '#2B1B10';
+                    ctx.fillRect(0, 0, stripW, stripH);
+
+                    // Card wrapper
+                    const cardX1 = 50, cardY1 = 120, cardW = stripW - 100, cardH = stripH - 240;
+                    const cardX2 = cardX1 + cardW, cardY2 = cardY1 + cardH;
+                    drawRoundedRect(ctx, cardX1, cardY1, cardW, cardH, 25, '#FDFCFA');
+
+                    // Ticket notches
+                    const midY = Math.round((cardY1 + cardY2) / 2);
+                    ctx.fillStyle = '#2B1B10';
+                    ctx.beginPath();
+                    ctx.arc(cardX1, midY, 16, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(cardX2, midY, 16, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Clip at top
+                    drawRoundedRect(ctx, stripW / 2 - 30, cardY1 - 20, 60, 30, 8, '#C0C0C0', '#5C4033', 2);
+                    ctx.fillStyle = '#808080';
+                    ctx.beginPath();
+                    ctx.arc(stripW / 2, cardY1 - 5, 6, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Barcode & footer
+                    drawBarcode(ctx, cardX1 + 60, cardY2 - 80, cardW - 120, 40, '#5C4033');
+                    ctx.fillStyle = '#5C4033';
+                    ctx.font = '20px Georgia, serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(footerText, stripW / 2, cardY2 - 25);
+
+                } else if (styleTheme === 'denim_y2k') {
+                    const denimImg = await loadImage('/images/denim_bg_collage.png');
+                    if (denimImg) {
+                        ctx.drawImage(denimImg, 0, 0, stripW, stripH);
+                    } else {
+                        ctx.fillStyle = (photoShape === 'square') ? '#14233C' : '#4C6E8D';
+                        ctx.fillRect(0, 0, stripW, stripH);
+                    }
+
+                    const cardX1 = 45, cardY1 = 50, cardW = stripW - 90, cardH = stripH - 100;
+                    const cardX2 = cardX1 + cardW, cardY2 = cardY1 + cardH;
+                    
+                    // Main card with double borders
+                    drawRoundedRect(ctx, cardX1, cardY1, cardW, cardH, 25, '#FCF8EE', '#8B2D2D', 3);
+                    drawRoundedRect(ctx, cardX1 + 6, cardY1 + 6, cardW - 12, cardH - 12, 20, null, '#8B2D2D', 1);
+
+                    // Dividers & notches
+                    const notchR = 16;
+                    const denimBlue = '#325078';
+                    [175, stripH - 175].forEach(divY => {
+                        ctx.fillStyle = denimBlue;
+                        ctx.beginPath();
+                        ctx.arc(cardX1, divY, notchR, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(cardX2, divY, notchR, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Dashed line
+                        ctx.save();
+                        ctx.strokeStyle = '#8B2D2D';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([6, 6]);
+                        ctx.beginPath();
+                        ctx.moveTo(cardX1 + 16, divY);
+                        ctx.lineTo(cardX2 - 16, divY);
+                        ctx.stroke();
+                        ctx.restore();
+                    });
+
+                    // Ticket header typography
+                    ctx.fillStyle = '#8B2D2D';
+                    ctx.font = 'italic 32px Georgia, serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('Movie Theatre', stripW / 2, 95);
+
+                    ctx.font = 'bold 16px Georgia, serif';
+                    ctx.fillText('15 c', 130, 145);
+                    ctx.fillText('ADMIT ONE', stripW / 2, 145);
+                    ctx.fillText('ONE DAY', stripW - 130, 145);
+
+                    ctx.strokeStyle = '#8B2D2D';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(200, 125); ctx.lineTo(200, 165);
+                    ctx.moveTo(400, 125); ctx.lineTo(400, 165);
+                    ctx.stroke();
+
+                    // Barcode bottom right
+                    drawBarcode(ctx, cardX2 - 100, stripH - 145, 80, 65, '#8B2D2D');
+
+                    // Ticket footer details
+                    ctx.textAlign = 'left';
+                    ctx.fillStyle = '#8B2D2D';
+                    ctx.font = 'italic 30px Georgia, serif';
+                    ctx.fillText('HEY,', 80, stripH - 125);
+                    ctx.font = 'bold 24px Georgia, serif';
+                    ctx.fillText('GORGEOUS', 80, stripH - 95);
+                    ctx.font = '14px Georgia, serif';
+                    ctx.fillText('📍 ' + footerText, 80, stripH - 68);
+
+                    // Flower sticker
+                    const flowerImg = await loadImage('/images/flower_sticker_1.png');
+                    if (flowerImg) {
+                        ctx.drawImage(flowerImg, 15, 600, 70, 70);
+                    }
+
+                    // Tilted "ADMIT ONE" ticket
+                    ctx.save();
+                    ctx.translate(stripW - 120, 480);
+                    ctx.rotate(15 * Math.PI / 180);
+                    drawRoundedRect(ctx, 0, 0, 120, 50, 10, '#FFB4BE', '#8B2D2D', 2);
+                    ctx.fillStyle = '#8B2D2D';
+                    ctx.font = 'bold 13px Georgia, serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('ADMIT ONE', 60, 25);
+                    ctx.restore();
+
+                } else if (styleTheme === 'ppg_collage') {
+                    const ppgBg = await loadImage('/images/ppg_bg_collage.jpg');
+                    if (ppgBg) {
+                        ctx.drawImage(ppgBg, 0, 0, stripW, stripH);
+                    } else {
+                        ctx.fillStyle = '#FFC0CB';
+                        ctx.fillRect(0, 0, stripW, stripH);
+                    }
+
+                    // White overlay card
+                    const cardX1 = 50, cardY1 = 130, cardW = stripW - 100, cardH = stripH - 260;
+                    const cardY2 = cardY1 + cardH;
+                    drawRoundedRect(ctx, cardX1, cardY1, cardW, cardH, 25, 'rgba(253, 252, 248, 0.90)');
+
+                    ctx.fillStyle = '#5C4033';
+                    ctx.font = 'bold 20px Georgia, serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(footerText, stripW / 2, cardY2 - 25);
+
+                    // Powerpuff Girls Stickers
+                    const [blossom, bubbles, buttercup, flower] = await Promise.all([
+                        loadImage('/images/blossom_sticker.png'),
+                        loadImage('/images/bubbles_sticker.png'),
+                        loadImage('/images/buttercup_sticker.png'),
+                        loadImage('/images/flower_sticker_1.png')
+                    ]);
+
+                    if (blossom) ctx.drawImage(blossom, 45, 95, 140, 140);
+                    if (bubbles) ctx.drawImage(bubbles, stripW - 180, 95, 140, 140);
+                    if (flower) ctx.drawImage(flower, 35, stripH - 240, 90, 90);
+                    if (buttercup) ctx.drawImage(buttercup, stripW - 180, stripH - 255, 140, 140);
+
+                } else if (styleTheme === 'polaroid_printer') {
+                    const polBg = await loadImage('/images/polaroid_bg_collage.jpg');
+                    if (polBg) {
+                        ctx.drawImage(polBg, 0, 0, stripW, stripH);
+                    } else {
+                        ctx.fillStyle = '#8B5A2B';
+                        ctx.fillRect(0, 0, stripW, stripH);
+                    }
+
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = 'bold 20px Georgia, serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(footerText, stripW / 2, stripH - 60);
                 }
+
+                // 2. Render Header Banner (for non-denim themes)
+                if (styleTheme !== 'denim_y2k') {
+                    const bannerW = 440, bannerH = 70;
+                    const bx1 = (stripW - bannerW) / 2, by1 = 35;
+                    drawRoundedRect(ctx, bx1, by1, bannerW, bannerH, 15, 'rgba(253, 252, 248, 0.95)', '#5C4033', 3);
+
+                    ctx.fillStyle = '#5C4033';
+                    ctx.font = 'bold 30px Georgia, serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(headerText, stripW / 2, by1 + bannerH / 2);
+                }
+
+                // 3. Render Photos
+                let currentY = topPad;
+                const pasteX = (stripW - photoW) / 2;
+
+                for (let i = 0; i < 3; i++) {
+                    const img = await loadImage(capturedImages[i]);
+                    if (!img) continue;
+
+                    // Compute aspect ratio crop
+                    const targetRatio = photoW / photoH;
+                    const currentRatio = img.width / img.height;
+                    let sx, sy, sw, sh;
+                    if (currentRatio > targetRatio) {
+                        sh = img.height;
+                        sw = sh * targetRatio;
+                        sx = (img.width - sw) / 2;
+                        sy = 0;
+                    } else {
+                        sw = img.width;
+                        sh = sw / targetRatio;
+                        sx = 0;
+                        sy = (img.height - sh) / 2;
+                    }
+
+                    // Polaroid white frame backing
+                    if (styleTheme === 'polaroid_printer') {
+                        const frameW = photoW + 30, frameH = photoH + 20;
+                        const frameX = (stripW - frameW) / 2;
+                        drawRoundedRect(ctx, frameX, currentY - 10, frameW, frameH, 4, '#FFFFFF', '#000000', 2);
+                    }
+
+                    // Clip and draw image
+                    ctx.save();
+                    ctx.beginPath();
+                    if (photoShape === 'oval') {
+                        ctx.ellipse(pasteX + photoW / 2, currentY + photoH / 2, photoW / 2, photoH / 2, 0, 0, Math.PI * 2);
+                    } else if (styleTheme === 'denim_y2k') {
+                        if (typeof ctx.roundRect === 'function') {
+                            ctx.roundRect(pasteX, currentY, photoW, photoH, 20);
+                        } else {
+                            ctx.rect(pasteX, currentY, photoW, photoH);
+                        }
+                    } else {
+                        ctx.rect(pasteX, currentY, photoW, photoH);
+                    }
+                    ctx.clip();
+                    ctx.drawImage(img, sx, sy, sw, sh, pasteX, currentY, photoW, photoH);
+                    ctx.restore();
+
+                    // Outer stroke border
+                    const borderColor = (styleTheme === 'denim_y2k') ? '#8B2D2D' : '#5C4033';
+                    ctx.strokeStyle = borderColor;
+                    ctx.lineWidth = (photoShape === 'oval' || styleTheme === 'denim_y2k') ? 4 : 3;
+
+                    ctx.beginPath();
+                    if (photoShape === 'oval') {
+                        ctx.ellipse(pasteX + photoW / 2, currentY + photoH / 2, photoW / 2, photoH / 2, 0, 0, Math.PI * 2);
+                        ctx.stroke();
+                    } else if (styleTheme === 'denim_y2k') {
+                        if (typeof ctx.roundRect === 'function') {
+                            ctx.roundRect(pasteX, currentY, photoW, photoH, 20);
+                            ctx.stroke();
+                        } else {
+                            ctx.strokeRect(pasteX, currentY, photoW, photoH);
+                        }
+                    } else {
+                        ctx.strokeRect(pasteX, currentY, photoW, photoH);
+                    }
+
+                    currentY += photoH + gap;
+                }
+
+                // Convert to high-resolution PNG data URL
+                const resultUrl = canvas.toDataURL('image/png');
+                finalStrip.src = resultUrl;
+                downloadBtn.href = resultUrl;
+
+                placeholder.classList.add('hidden');
+                finalStrip.classList.remove('hidden');
+                downloadBtn.classList.remove('hidden');
+
             } catch (err) {
-                alert('Error server: ' + err.message);
+                console.error("Gagal menjahit strip foto:", err);
+                alert("Terjadi kesalahan saat memproses foto: " + err.message);
+                placeholder.classList.remove('hidden');
+                placeholder.innerHTML = `
+                    <span class="text-4xl mb-2">⚠️</span>
+                    <p class="font-hand text-lg text-red-700">Gagal memproses foto. Silakan coba lagi.</p>
+                `;
             } finally {
                 snapBtn.disabled = false;
                 snapBtn.textContent = 'MULAI CETAK 3 FOTO';
             }
+        }
+
+        async function sendToBackend() {
+            await generateStripClientSide();
         }
 
         function delay(ms) {
@@ -403,6 +724,23 @@
                 if (startBtn) startBtn.classList.add('hidden');
                 if (mobileGuide) mobileGuide.classList.remove('hidden');
             }
+
+            // Live update strip when custom options are changed after capture
+            ['header_text', 'footer_text', 'style_theme', 'photo_shape'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', () => {
+                        if (capturedImages.filter(Boolean).length === 3) {
+                            generateStripClientSide();
+                        }
+                    });
+                    el.addEventListener('change', () => {
+                        if (capturedImages.filter(Boolean).length === 3) {
+                            generateStripClientSide();
+                        }
+                    });
+                }
+            });
         });
     </script>
     </div>
