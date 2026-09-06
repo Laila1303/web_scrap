@@ -43,6 +43,23 @@ $envDefaults = [
     'FILESYSTEM_DISK' => 'local',
 ];
 
+// Pastikan DB_HOST tidak mengarah ke localhost/127.0.0.1 (karena tidak ada MySQL di container Lambda)
+$currentDbHost = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? '');
+if (empty($currentDbHost) || in_array($currentDbHost, ['127.0.0.1', 'localhost', 'mysql'])) {
+    $envDefaults['DB_HOST'] = 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com';
+    putenv('DB_HOST=gateway01.ap-southeast-1.prod.aws.tidbcloud.com');
+    $_ENV['DB_HOST'] = 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com';
+    $_SERVER['DB_HOST'] = 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com';
+}
+
+$currentAppKey = getenv('APP_KEY') ?: ($_ENV['APP_KEY'] ?? '');
+if (empty($currentAppKey)) {
+    $fallbackKey = 'base64:17UeYJ9XJRIvHuDZFyj0AhVLEwapOg4wT28tAMd/2ng=';
+    putenv("APP_KEY={$fallbackKey}");
+    $_ENV['APP_KEY'] = $fallbackKey;
+    $_SERVER['APP_KEY'] = $fallbackKey;
+}
+
 foreach ($envDefaults as $key => $val) {
     if (empty($_ENV[$key]) && empty($_SERVER[$key]) && ! getenv($key)) {
         putenv("{$key}={$val}");
@@ -73,7 +90,7 @@ $storageOverrides = [
     'APP_CONFIG_CACHE' => '/tmp/bootstrap/cache/config.php',
     'APP_EVENTS_CACHE' => '/tmp/bootstrap/cache/events.php',
     'APP_PACKAGES_CACHE' => '/tmp/bootstrap/cache/packages.php',
-    'APP_ROUTES_CACHE' => '/tmp/bootstrap/cache/routes.php',
+    'APP_ROUTES_CACHE' => '/tmp/bootstrap/cache/routes-v7.php',
     'APP_SERVICES_CACHE' => '/tmp/bootstrap/cache/services.php',
     'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
     'LOG_CHANNEL' => 'stderr',
