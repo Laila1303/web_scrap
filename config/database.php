@@ -44,23 +44,26 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', (function () {
-                    // 1. Cek jika ada file cacert.pem lokal
+                PDO::MYSQL_ATTR_SSL_CA => (function () {
+                    $envCa = env('MYSQL_ATTR_SSL_CA');
+                    if (! empty($envCa) && file_exists($envCa)) {
+                        return $envCa;
+                    }
                     if (file_exists(base_path('cacert.pem'))) {
                         return base_path('cacert.pem');
                     }
-                    // 2. Cek sertifikat sistem bawaan Linux AWS/Vercel
                     if (file_exists('/etc/ssl/certs/ca-certificates.crt')) {
                         return '/etc/ssl/certs/ca-certificates.crt';
                     }
                     if (file_exists('/etc/pki/tls/certs/ca-bundle.crt')) {
                         return '/etc/pki/tls/certs/ca-bundle.crt';
                     }
+
                     return null;
-                })()),
+                })(),
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
                 PDO::ATTR_EMULATE_PREPARES => true,
-            ]) : [],
+            ], fn ($val) => $val !== null) : [],
         ],
 
         'pgsql' => [

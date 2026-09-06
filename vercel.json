@@ -19,6 +19,10 @@
       "dest": "/public/audio/$1"
     },
     {
+      "src": "/(favicon\\.ico|robots\\.txt)",
+      "dest": "/public/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/api/index.php"
     }
