@@ -1,11 +1,10 @@
 <?php
 
-// Pastikan pesan error awal langsung ter-print sebelum Laravel dimuat
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-// 1. Diagnostic Endpoint
+// 1. Diagnostic / Health Check Endpoint
 if (isset($_GET['test']) || (isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/health-check'))) {
     header('Content-Type: text/plain');
     echo "=== VERCEL PHP DIAGNOSTIC ===\n";
@@ -20,7 +19,7 @@ if (isset($_GET['test']) || (isset($_SERVER['REQUEST_URI']) && str_contains($_SE
 try {
     define('LARAVEL_START', microtime(true));
 
-    // 2. Siapkan Folder Dinamis di /tmp
+    // 2. Siapkan Folder Dinamis di /tmp (Read-Write Storage)
     $tmpDirs = [
         '/tmp/storage/framework/views',
         '/tmp/storage/framework/cache/data',
@@ -36,7 +35,7 @@ try {
         }
     }
 
-    // 3. Set Environment Variable
+    // 3. Set Serverless-Friendly Environment Variable
     putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
     putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
     putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
@@ -47,10 +46,10 @@ try {
     putenv('CACHE_STORE=array');
     putenv('LOG_CHANNEL=stderr');
 
-    // 4. Load Composer Autoload Terlebih Dahulu
+    // 4. Load Composer Autoload
     $autoload = __DIR__ . '/../vendor/autoload.php';
     if (!file_exists($autoload)) {
-        throw new RuntimeException('vendor/autoload.php tidak ditemukan di server Vercel. Pastikan folder vendor ikut ter-upload atau composer install dijalankan saat build.');
+        throw new RuntimeException('vendor/autoload.php tidak ditemukan di server Vercel.');
     }
     require $autoload;
 
@@ -61,13 +60,14 @@ try {
     }
     $app = require_once $appFile;
 
-    // Set dynamic storage path
-    $app->useStoragePath('/tmp/storage');
+    // Set storage path ke /tmp jika didukung
+    if (method_exists($app, 'useStoragePath')) {
+        $app->useStoragePath('/tmp/storage');
+    }
 
     // 6. Handle Request
     $request = \Illuminate\Http\Request::capture();
     
-    // Support Laravel 11/12 & Laravel 10 Kernel
     if (method_exists($app, 'handleRequest')) {
         $app->handleRequest($request);
     } else {
