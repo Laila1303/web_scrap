@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "framework": null,
-  "buildCommand": "npm run build",
-  "outputDirectory": "public",
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.7.3"
@@ -20,10 +17,6 @@
     {
       "src": "/audio/(.*)",
       "dest": "/public/audio/$1"
-    },
-    {
-      "src": "/(favicon.ico|robots.txt)",
-      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
