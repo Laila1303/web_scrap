@@ -7,15 +7,15 @@
     <title>Kapsul Waktu - Scrapbook Kayla</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative">
+<body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative overflow-x-hidden">
     
-    <!-- Mockup Corner Decorations -->
-    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="Top Left">
+    <!-- Mockup Corner Decorations (pointer-events-none wajib & z-0 agar tidak memblokir tombol) -->
+    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-0 select-none" alt="Top Left">
     <img src="{{ asset('images/mockup_top_right.png') }}" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
     <img src="{{ asset('images/mockup_bottom_left.png') }}" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
-    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Bottom Right">
+    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Right">
     
-    <div class="max-w-6xl w-full mx-auto z-10 flex-1 flex flex-col gap-4 sm:gap-6">
+    <div class="max-w-6xl w-full mx-auto relative z-10 flex-1 flex flex-col gap-4 sm:gap-6">
         
         <!-- Header -->
         <header class="flex justify-between items-center border-b border-cocoa-light/20 pb-4">
@@ -110,10 +110,10 @@
                 <div class="flex flex-col gap-4 max-h-[560px] overflow-y-auto pr-2">
                     @forelse($capsules as $capsule)
                         @php
-                            $isUnlocked = $capsule->isUnlocked();
+                            $isUnlocked = method_exists($capsule, 'isUnlocked') ? $capsule->isUnlocked() : ($capsule->type === 'letter' || ($capsule->unlock_at && \Carbon\Carbon::now()->greaterThanOrEqualTo($capsule->unlock_at)));
                         @endphp
                         
-                        <div class="capsule-card bg-[#FDFDFC] p-5 rounded-lg shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+                        <div class="capsule-card bg-[#FDFDFC] p-5 rounded-lg shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center border border-espresso/10">
                             
                             <!-- Icon and Status -->
                             <div class="flex items-center gap-4">
@@ -143,7 +143,7 @@
                                     <div id="capsule-data-{{ $capsule->id }}" class="hidden"
                                          data-sender="{{ $capsule->sender }}"
                                          data-date="{{ $capsule->created_at->format('d M Y') }}">{!! nl2br(e($capsule->content)) !!}</div>
-                                    <button type="button" onclick="openCapsule({{ $capsule->id }})" class="px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer">
+                                    <button type="button" onclick="window.openCapsule({{ $capsule->id }})" class="px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer shadow">
                                         BACA SEKARANG &rarr;
                                     </button>
                                 @else
@@ -168,9 +168,9 @@
     </div>
 
     <!-- Read Modal -->
-    <div id="read-modal" style="display: none;" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+    <div id="read-modal" style="display: none;" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[999]">
         <div class="bg-cream-light border-2 border-espresso max-w-lg w-full rounded-xl shadow-2xl p-6 relative flex flex-col gap-4">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-xl cursor-pointer">&times;</button>
+            <button onclick="window.closeModal()" type="button" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-2xl leading-none cursor-pointer">&times;</button>
             
             <div class="border-b border-dashed border-cocoa-light pb-2">
                 <span id="modal-date" class="font-hand text-sm text-cocoa-medium">Tanggal</span>
@@ -181,7 +181,7 @@
                 Isi surat...
             </div>
             
-            <button onclick="closeModal()" class="w-full py-2 bg-espresso text-cream-light font-serif font-bold text-xs rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
+            <button onclick="window.closeModal()" type="button" class="w-full py-2 bg-espresso text-cream-light font-serif font-bold text-xs rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
                 TUTUP SURAT
             </button>
         </div>
@@ -201,16 +201,12 @@
             document.getElementById('read-modal').style.display = 'flex';
         }
 
-        function readCapsule(sender, content, date) {
-            document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
-            document.getElementById('modal-content').innerHTML = content;
-            document.getElementById('modal-date').textContent = 'Dikirim pada: ' + date;
-            document.getElementById('read-modal').style.display = 'flex';
-        }
-
         function closeModal() {
             document.getElementById('read-modal').style.display = 'none';
         }
+
+        window.openCapsule = openCapsule;
+        window.closeModal = closeModal;
 
         function updateCountdowns() {
             const now = new Date().getTime();
@@ -228,7 +224,7 @@
                 } else {
                     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
                     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
                     
                     timer.innerHTML = `Terkunci. Buka dalam: <span class="font-mono font-bold">${days}h ${hours}j ${minutes}m ${seconds}d</span>`;

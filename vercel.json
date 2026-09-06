@@ -1,9 +1,8 @@
 {
   "version": 2,
   "framework": null,
-  "outputDirectory": "public",
   "functions": {
-    "api/*.php": {
+    "api/index.php": {
       "runtime": "vercel-php@0.7.4"
     }
   },
@@ -21,12 +20,8 @@
       "dest": "/public/audio/$1"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/public/favicon.ico"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/public/robots.txt"
+      "src": "/(favicon.ico|robots.txt)",
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",

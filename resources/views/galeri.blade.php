@@ -7,15 +7,15 @@
     <title>Our Gallery - Scrapbook Kayla</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative">
+<body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative overflow-x-hidden">
     
     <!-- Corner Decorations -->
-    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="Top Left">
+    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-0 select-none" alt="Top Left">
     <img src="{{ asset('images/mockup_top_right.png') }}" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
     <img src="{{ asset('images/mockup_bottom_left.png') }}" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
-    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Blossom Right">
+    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-0 select-none" alt="Blossom Right">
     
-    <div class="max-w-6xl w-full mx-auto z-10 flex-1 flex flex-col gap-4 sm:gap-6">
+    <div class="max-w-6xl w-full mx-auto relative z-10 flex-1 flex flex-col gap-4 sm:gap-6">
         
         <!-- Header -->
         <header class="flex justify-between items-center border-b border-cocoa-light/20 pb-4">
@@ -23,9 +23,9 @@
                 <a href="{{ route('dashboard') }}" class="px-3 py-1 bg-espresso text-cream-light font-serif text-sm rounded shadow hover:bg-cocoa-medium transition">
                     &larr; KEMBALI
                 </a>
-                <h1 class="font-serif text-2xl md:text-3xl font-bold text-espresso-dark">🎞️ GALERI MASA MUDA</h1>
+                <h1 class="font-serif text-2xl md:text-3xl font-bold text-espresso-dark">🎞️ So High School Gallery</h1>
             </div>
-            <span class="font-hand text-xl text-cocoa-medium">Memori SMA &amp; Kebersamaan</span>
+            <span class="font-hand text-xl text-cocoa-medium">Our Space &amp; Memories</span>
         </header>
 
         <!-- Global Error Alert -->
@@ -55,17 +55,19 @@
                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-tiramisu-dark/60 w-24 h-6 rotate-[-1deg] border border-espresso opacity-70"></div>
                 
                 <h2 class="font-serif text-lg font-bold text-espresso-dark mt-2">[ 📝 UNGGAH MEMORI BARU ]</h2>
-                <p class="font-serif text-xs text-espresso/70 leading-relaxed">Tambahkan kenangan foto terbaru (Maks. 2MB)</p>
+                <p class="font-serif text-xs text-espresso/70 leading-relaxed">Upload foto gemas :3 (Maks. 10MB)</p>
                 
                 <form id="gallery-form" action="{{ route('gallery.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mt-2" onsubmit="handleFormSubmit(event)">
                     @csrf
+                    
                     <!-- Image Input -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Pilih Foto:</label>
-                        <input type="file" id="image-input" name="image" accept="image/*" required class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-serif file:bg-espresso file:text-cream-light hover:file:bg-cocoa-medium cursor-pointer" onchange="handleImageSelection(event)">
-                        @error('image')
+                        <input type="file" id="image-input" name="photo" accept="image/*" required class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-serif file:bg-espresso file:text-cream-light hover:file:bg-cocoa-medium cursor-pointer" onchange="handleImageSelection(event)">
+                        @error('photo')
                             <span class="text-red-700 text-[11px] font-bold mt-1">{{ $message }}</span>
                         @enderror
+                        
                         <!-- Instant Preview Container -->
                         <div id="preview-container" class="hidden mt-2 p-2 bg-white/70 rounded border border-cocoa-light/30 flex items-center gap-3">
                             <img id="image-preview" src="#" alt="Preview" class="w-16 h-16 object-cover rounded shadow-sm">
@@ -79,7 +81,7 @@
                     <!-- Caption Input -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Catatan Tulisan Tangan:</label>
-                        <input type="text" name="caption" value="{{ old('caption') }}" placeholder="Contoh: Candid pas hangout 🍜" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light font-hand focus:outline-none" required>
+                        <input type="text" name="caption" value="{{ old('caption') }}" placeholder="Contoh: Moment Mukbang Bareng 🍜" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light font-hand focus:outline-none" required>
                         @error('caption')
                             <span class="text-red-700 text-[11px] font-bold mt-1">{{ $message }}</span>
                         @enderror
@@ -90,7 +92,7 @@
                         <label class="font-serif text-xs font-bold text-espresso">Ukuran Foto:</label>
                         <select name="size" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
                             <option value="small" @selected(old('size') === 'small')>Kecil (170px)</option>
-                            <option value="medium" @selected(old('size', 'medium') === 'medium')>Sedang (240px)</option>
+                            <option value="medium" @selected(old('size', 'medium') === 'medium')>Sedang (230px)</option>
                             <option value="large" @selected(old('size') === 'large')>Besar (290px)</option>
                         </select>
                         @error('size')
@@ -104,25 +106,37 @@
                 </form>
             </div>
 
-            <!-- Right Side: Polaroid Gallery Collage -->
+            <!-- Right Side: Polaroid Gallery Collage (Ukuran Dinamis & Kontras) -->
             <div class="lg:col-span-8">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-center justify-items-center">
+                <div class="flex flex-wrap gap-6 justify-center items-center p-2">
                     
                     @forelse($photos as $index => $photo)
                         @php
-                            $rotations = ['rotate-[-3deg]', 'rotate-[4deg]', 'rotate-[-2deg]', 'rotate-[3deg]', 'rotate-[-4deg]'];
+                            $rotations = ['-3deg', '4deg', '-2deg', '3deg', '-4deg', '2deg'];
                             $rotation = $rotations[$index % count($rotations)];
                             
-                            $sizeClasses = [
-                                'small' => 'w-36 sm:w-40',
-                                'medium' => 'w-44 sm:w-52',
-                                'large' => 'w-48 sm:w-60'
-                            ];
-                            $sizeClass = $sizeClasses[$photo->size] ?? 'w-44 sm:w-52';
+                            $cardWidth = match($photo->size) {
+                                'small' => '170px',
+                                'large' => '290px',
+                                default => '230px',
+                            };
+
+                            $imgHeight = match($photo->size) {
+                                'small' => '130px',
+                                'large' => '220px',
+                                default => '170px',
+                            };
+
+                            $fontSize = match($photo->size) {
+                                'small' => '14px',
+                                'large' => '20px',
+                                default => '16px',
+                            };
                         @endphp
-                        <div class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm {{ $rotation }} {{ $sizeClass }} shadow-md hover:scale-105 transition-transform duration-200">
+                        <div class="polaroid-card relative bg-white p-3 pb-6 border border-gray-200 rounded-sm shadow-md hover:scale-105 hover:z-20 transition-all duration-200 shrink-0" 
+                             style="width: {{ $cardWidth }}; transform: rotate({{ $rotation }});">
                             
-                            <!-- Tombol Hapus Merah di Sudut Kanan Atas -->
+                            <!-- Tombol Hapus Merah -->
                             <form action="{{ route('gallery.destroy', $photo->id) }}" method="POST" class="absolute -top-3 -right-3 z-30">
                                 @csrf
                                 @method('DELETE')
@@ -132,11 +146,17 @@
                             </form>
 
                             <!-- Render Image -->
-                            <img src="{{ str_starts_with($photo->image_path, 'data:') ? $photo->image_path : asset($photo->image_path) }}" class="w-full h-40 object-cover rounded-sm" alt="Memory">
-                            <p class="font-hand text-center text-espresso text-lg mt-3">{{ $photo->caption }}</p>
+                            <img src="{{ str_starts_with($photo->image_path, 'data:') ? $photo->image_path : asset($photo->image_path) }}" 
+                                 class="w-full object-cover rounded-sm border border-gray-100" 
+                                 style="height: {{ $imgHeight }};" 
+                                 alt="Memory">
+                            
+                            <p class="font-hand text-center text-espresso mt-3 leading-tight" style="font-size: {{ $fontSize }};">
+                                {{ $photo->caption }}
+                            </p>
                         </div>
                     @empty
-                        <div class="col-span-full py-16 text-center flex flex-col items-center justify-center border-2 border-dashed border-cocoa-light/40 rounded-xl bg-cream-light/30 w-full p-8">
+                        <div class="w-full py-16 text-center flex flex-col items-center justify-center border-2 border-dashed border-cocoa-light/40 rounded-xl bg-cream-light/30 p-8">
                             <span class="text-4xl mb-2">📸</span>
                             <p class="font-serif text-espresso font-bold text-base">Belum ada foto memori</p>
                             <p class="font-serif text-xs text-espresso/70 mt-1">Gunakan formulir di sebelah kiri untuk menambahkan foto scrapbook pertamamu!</p>
@@ -158,12 +178,10 @@
             const previewImg = document.getElementById('image-preview');
             const sizeInfo = document.getElementById('file-size-info');
 
-            // Read original file
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // Resize to max 1200px width/height maintaining aspect ratio
                     const maxDim = 1200;
                     let width = img.width;
                     let height = img.height;
@@ -184,17 +202,14 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Compress to JPEG with 0.8 quality
                     canvas.toBlob(function(blob) {
                         if (!blob) return;
 
-                        // Create optimized File object
                         const optimizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
                             type: 'image/jpeg',
                             lastModified: Date.now()
                         });
 
-                        // Replace the file in the file input using DataTransfer
                         try {
                             const dataTransfer = new DataTransfer();
                             dataTransfer.items.add(optimizedFile);
@@ -203,7 +218,6 @@
                             console.warn("DataTransfer not supported, proceeding with original file:", err);
                         }
 
-                        // Show preview and size info
                         previewImg.src = canvas.toDataURL('image/jpeg', 0.8);
                         const originalKB = Math.round(file.size / 1024);
                         const optimizedKB = Math.round(blob.size / 1024);
