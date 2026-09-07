@@ -6,63 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Kapsul Waktu - Scrapbook Kayla</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <script>
-        function openCapsule(id) {
-            var dataEl = document.getElementById('capsule-data-' + id);
-            if (!dataEl) return;
-            var sender = dataEl.getAttribute('data-sender') || 'Sahabat';
-            var date = dataEl.getAttribute('data-date') || '';
-            var content = dataEl.innerHTML;
-
-            var modalSender = document.getElementById('modal-sender');
-            var modalContent = document.getElementById('modal-content');
-            var modalDate = document.getElementById('modal-date');
-            var modal = document.getElementById('read-modal');
-
-            if (modalSender) modalSender.textContent = 'Dari: ' + sender;
-            if (modalContent) modalContent.innerHTML = content;
-            if (modalDate) modalDate.textContent = 'Dikirim pada: ' + date;
-            if (modal) modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            var modal = document.getElementById('read-modal');
-            if (modal) modal.style.display = 'none';
-        }
-
-        window.openCapsule = openCapsule;
-        window.closeModal = closeModal;
-
-        function updateCountdowns() {
-            var now = new Date().getTime();
-            var timers = document.querySelectorAll('.countdown-timer');
-            
-            timers.forEach(function(timer) {
-                var targetAttr = timer.getAttribute('data-target');
-                if (!targetAttr) return;
-
-                var targetDate = new Date(targetAttr).getTime();
-                var diff = targetDate - now;
-                
-                if (diff <= 0) {
-                    timer.innerHTML = "<span class='text-green-700 font-bold'>Sudah bisa dibuka! Muat ulang halaman.</span>";
-                } else {
-                    var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    var minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
-                    var seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    
-                    timer.innerHTML = 'Terkunci. Buka dalam: <span class="font-mono font-bold">' + days + 'h ' + hours + 'j ' + minutes + 'm ' + seconds + 'd</span>';
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            setInterval(updateCountdowns, 1000);
-            updateCountdowns();
-        });
-    </script>
 </head>
 <body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative overflow-x-hidden">
     
@@ -123,7 +66,7 @@
                     <!-- Type Selection -->
                     <div class="flex flex-col gap-1">
                         <label class="font-serif text-xs font-bold text-espresso">Jenis Kiriman:</label>
-                        <select name="type" id="type-select" onchange="document.getElementById('unlock-options-container').style.display = (this.value === 'letter' ? 'none' : 'flex')" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                        <select name="type" id="type-select" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
                             <option value="time_capsule" @selected(old('type', 'time_capsule') === 'time_capsule')>🔒 Kapsul Waktu (Terkunci sampai tanggal tertentu)</option>
                             <option value="letter" @selected(old('type') === 'letter')>🔓 Surat Biasa (Langsung bisa dibuka Kayla hari ini)</option>
                         </select>
@@ -133,7 +76,7 @@
                     <div id="unlock-options-container" class="flex flex-col gap-3">
                         <div class="flex flex-col gap-1">
                             <label class="font-serif text-xs font-bold text-espresso">Jadwal Pembukaan Kapsul:</label>
-                            <select name="unlock_relative" id="relative-select" onchange="document.getElementById('custom-date-container').style.display = (this.value === 'custom' ? 'block' : 'none')" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
+                            <select name="unlock_relative" id="relative-select" class="text-sm bg-cream-light p-2.5 rounded border border-cocoa-light focus:outline-none cursor-pointer">
                                 <option value="1_year" @selected(old('unlock_relative') === '1_year' || !old('unlock_relative'))>1 Tahun Lagi ({{ (int)date('Y') + 1 }})</option>
                                 <option value="2_years" @selected(old('unlock_relative') === '2_years')>2 Tahun Lagi ({{ (int)date('Y') + 2 }})</option>
                                 <option value="5_years" @selected(old('unlock_relative') === '5_years')>5 Tahun Lagi ({{ (int)date('Y') + 5 }})</option>
@@ -200,7 +143,7 @@
                                     <div id="capsule-data-{{ $capsule->id }}" class="hidden"
                                          data-sender="{{ $capsule->sender }}"
                                          data-date="{{ $capsule->created_at->format('d M Y') }}">{!! nl2br(e($capsule->content)) !!}</div>
-                                    <button type="button" onclick="openCapsule({{ $capsule->id }})" class="relative z-20 px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer shadow">
+                                    <button type="button" data-capsule-id="{{ $capsule->id }}" class="btn-read-capsule relative z-20 px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer shadow">
                                         BACA SEKARANG &rarr;
                                     </button>
                                 @else
@@ -227,7 +170,7 @@
     <!-- Read Modal -->
     <div id="read-modal" style="display: none;" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[9999]">
         <div class="bg-cream-light border-2 border-espresso max-w-lg w-full rounded-xl shadow-2xl p-6 relative flex flex-col gap-4">
-            <button onclick="closeModal()" type="button" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-2xl leading-none cursor-pointer">&times;</button>
+            <button id="modal-close-btn-x" type="button" class="btn-close-modal absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-2xl leading-none cursor-pointer">&times;</button>
             
             <div class="border-b border-dashed border-cocoa-light pb-2">
                 <span id="modal-date" class="font-hand text-sm text-cocoa-medium">Tanggal</span>
@@ -238,10 +181,86 @@
                 Isi surat...
             </div>
             
-            <button onclick="closeModal()" type="button" class="w-full py-2 bg-espresso text-cream-light font-serif font-bold text-xs rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
+            <button id="modal-close-btn-foot" type="button" class="btn-close-modal w-full py-2 bg-espresso text-cream-light font-serif font-bold text-xs rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
                 TUTUP SURAT
             </button>
         </div>
     </div>
+
+    <script>
+    (function() {
+        // Form Toggle Listener
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'type-select') {
+                var container = document.getElementById('unlock-options-container');
+                if (container) container.style.display = (e.target.value === 'letter' ? 'none' : 'flex');
+            }
+            if (e.target && e.target.id === 'relative-select') {
+                var customDate = document.getElementById('custom-date-container');
+                if (customDate) customDate.style.display = (e.target.value === 'custom' ? 'block' : 'none');
+            }
+        });
+
+        // Click Handler (Buka / Tutup Modal)
+        document.addEventListener('click', function(e) {
+            var openBtn = e.target.closest('.btn-read-capsule');
+            if (openBtn) {
+                var id = openBtn.getAttribute('data-capsule-id');
+                var dataEl = document.getElementById('capsule-data-' + id);
+                if (dataEl) {
+                    var sender = dataEl.getAttribute('data-sender') || 'Sahabat';
+                    var date = dataEl.getAttribute('data-date') || '';
+                    var content = dataEl.innerHTML;
+
+                    var modalSender = document.getElementById('modal-sender');
+                    var modalContent = document.getElementById('modal-content');
+                    var modalDate = document.getElementById('modal-date');
+                    var modal = document.getElementById('read-modal');
+
+                    if (modalSender) modalSender.textContent = 'Dari: ' + sender;
+                    if (modalContent) modalContent.innerHTML = content;
+                    if (modalDate) modalDate.textContent = 'Dikirim pada: ' + date;
+                    if (modal) modal.style.display = 'flex';
+                }
+                return;
+            }
+
+            var closeBtn = e.target.closest('.btn-close-modal');
+            if (closeBtn) {
+                var modalToClose = document.getElementById('read-modal');
+                if (modalToClose) modalToClose.style.display = 'none';
+                return;
+            }
+
+            var modalBg = document.getElementById('read-modal');
+            if (e.target === modalBg) {
+                modalBg.style.display = 'none';
+            }
+        });
+
+        // Countdowns
+        function updateCountdowns() {
+            var now = new Date().getTime();
+            var timers = document.querySelectorAll('.countdown-timer');
+            timers.forEach(function(timer) {
+                var targetAttr = timer.getAttribute('data-target');
+                if (!targetAttr) return;
+
+                var diff = new Date(targetAttr).getTime() - now;
+                if (diff <= 0) {
+                    timer.innerHTML = "<span class='text-green-700 font-bold'>Sudah bisa dibuka! Muat ulang halaman.</span>";
+                } else {
+                    var days = Math.floor(diff / 86400000);
+                    var hours = Math.floor((diff % 86400000) / 3600000);
+                    var minutes = Math.floor((diff % 3600000) / 60000);
+                    var seconds = Math.floor((diff % 60000) / 1000);
+                    timer.innerHTML = 'Terkunci. Buka dalam: <span class="font-mono font-bold">' + days + 'h ' + hours + 'j ' + minutes + 'm ' + seconds + 'd</span>';
+                }
+            });
+        }
+        setInterval(updateCountdowns, 1000);
+        updateCountdowns();
+    })();
+    </script>
 </body>
 </html>
