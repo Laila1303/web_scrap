@@ -9,7 +9,7 @@
 </head>
 <body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative overflow-x-hidden">
     
-    <!-- Mockup Corner Decorations (pointer-events-none wajib & z-0 agar tidak memblokir tombol) -->
+    <!-- Mockup Corner Decorations -->
     <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-0 select-none" alt="Top Left">
     <img src="{{ asset('images/mockup_top_right.png') }}" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
     <img src="{{ asset('images/mockup_bottom_left.png') }}" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
@@ -48,7 +48,7 @@
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 my-auto items-start">
             
-            <!-- Left Column: Input Form (5 Cols) -->
+            <!-- Left Column: Input Form -->
             <div class="lg:col-span-5 bg-[#F4EFE6] border-2 border-espresso p-6 rounded-xl shadow-md flex flex-col gap-4 relative">
                 <div class="absolute -top-3 left-1/3 w-28 h-6 paper-tape transform rotate-[-2deg] opacity-75"></div>
                 
@@ -103,7 +103,7 @@
                 </form>
             </div>
 
-            <!-- Right Column: Time Capsule Display List (7 Cols) -->
+            <!-- Right Column: Time Capsule Display List -->
             <div class="lg:col-span-7 flex flex-col gap-4">
                 <h3 class="font-serif text-lg font-bold text-espresso-dark">Koleksi Kapsul Waktu Kayla</h3>
 
@@ -143,7 +143,7 @@
                                     <div id="capsule-data-{{ $capsule->id }}" class="hidden"
                                          data-sender="{{ $capsule->sender }}"
                                          data-date="{{ $capsule->created_at->format('d M Y') }}">{!! nl2br(e($capsule->content)) !!}</div>
-                                    <button type="button" onclick="window.openCapsule({{ $capsule->id }})" class="px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer shadow">
+                                    <button type="button" data-capsule-id="{{ $capsule->id }}" class="btn-open-capsule px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer shadow">
                                         BACA SEKARANG &rarr;
                                     </button>
                                 @else
@@ -170,7 +170,7 @@
     <!-- Read Modal -->
     <div id="read-modal" style="display: none;" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[999]">
         <div class="bg-cream-light border-2 border-espresso max-w-lg w-full rounded-xl shadow-2xl p-6 relative flex flex-col gap-4">
-            <button onclick="window.closeModal()" type="button" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-2xl leading-none cursor-pointer">&times;</button>
+            <button id="btn-close-modal-x" type="button" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-2xl leading-none cursor-pointer">&times;</button>
             
             <div class="border-b border-dashed border-cocoa-light pb-2">
                 <span id="modal-date" class="font-hand text-sm text-cocoa-medium">Tanggal</span>
@@ -181,59 +181,91 @@
                 Isi surat...
             </div>
             
-            <button onclick="window.closeModal()" type="button" class="w-full py-2 bg-espresso text-cream-light font-serif font-bold text-xs rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
+            <button id="btn-close-modal-footer" type="button" class="w-full py-2 bg-espresso text-cream-light font-serif font-bold text-xs rounded shadow hover:bg-cocoa-medium transition mt-2 cursor-pointer">
                 TUTUP SURAT
             </button>
         </div>
     </div>
 
     <script>
-        function openCapsule(id) {
+        function openCapsuleModal(id) {
             const dataEl = document.getElementById('capsule-data-' + id);
             if (!dataEl) return;
             const sender = dataEl.getAttribute('data-sender') || 'Sahabat';
             const date = dataEl.getAttribute('data-date') || '';
             const content = dataEl.innerHTML;
 
-            document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
-            document.getElementById('modal-content').innerHTML = content;
-            document.getElementById('modal-date').textContent = 'Dikirim pada: ' + date;
-            document.getElementById('read-modal').style.display = 'flex';
+            const modalSender = document.getElementById('modal-sender');
+            const modalContent = document.getElementById('modal-content');
+            const modalDate = document.getElementById('modal-date');
+            const modal = document.getElementById('read-modal');
+
+            if (modalSender) modalSender.textContent = 'Dari: ' + sender;
+            if (modalContent) modalContent.innerHTML = content;
+            if (modalDate) modalDate.textContent = 'Dikirim pada: ' + date;
+            if (modal) modal.style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('read-modal').style.display = 'none';
+        function closeCapsuleModal() {
+            const modal = document.getElementById('read-modal');
+            if (modal) modal.style.display = 'none';
         }
 
-        window.openCapsule = openCapsule;
-        window.closeModal = closeModal;
+        // Ekspos ke global window untuk kompatibilitas
+        window.openCapsule = openCapsuleModal;
+        window.closeModal = closeCapsuleModal;
 
-        function updateCountdowns() {
-            const now = new Date().getTime();
-            const timers = document.querySelectorAll('.countdown-timer');
-            
-            timers.forEach(timer => {
-                const targetAttr = timer.getAttribute('data-target');
-                if (!targetAttr) return;
-
-                const targetDate = new Date(targetAttr).getTime();
-                const diff = targetDate - now;
-                
-                if (diff <= 0) {
-                    timer.innerHTML = "<span class='text-green-700 font-bold'>Sudah bisa dibuka! Muat ulang halaman.</span>";
-                } else {
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    
-                    timer.innerHTML = `Terkunci. Buka dalam: <span class="font-mono font-bold">${days}h ${hours}j ${minutes}m ${seconds}d</span>`;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event delegation untuk tombol buka surat
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-open-capsule');
+                if (btn) {
+                    const id = btn.getAttribute('data-capsule-id');
+                    if (id) openCapsuleModal(id);
                 }
             });
-        }
-        
-        setInterval(updateCountdowns, 1000);
-        updateCountdowns();
+
+            // Event listener tombol tutup
+            const closeX = document.getElementById('btn-close-modal-x');
+            const closeFooter = document.getElementById('btn-close-modal-footer');
+            const modalBg = document.getElementById('read-modal');
+
+            if (closeX) closeX.addEventListener('click', closeCapsuleModal);
+            if (closeFooter) closeFooter.addEventListener('click', closeCapsuleModal);
+            if (modalBg) {
+                modalBg.addEventListener('click', function(e) {
+                    if (e.target === modalBg) closeCapsuleModal();
+                });
+            }
+
+            // Countdown timer
+            function updateCountdowns() {
+                const now = new Date().getTime();
+                const timers = document.querySelectorAll('.countdown-timer');
+                
+                timers.forEach(timer => {
+                    const targetAttr = timer.getAttribute('data-target');
+                    if (!targetAttr) return;
+
+                    const targetDate = new Date(targetAttr).getTime();
+                    const diff = targetDate - now;
+                    
+                    if (diff <= 0) {
+                        timer.innerHTML = "<span class='text-green-700 font-bold'>Sudah bisa dibuka! Muat ulang halaman.</span>";
+                    } else {
+                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                        
+                        timer.innerHTML = `Terkunci. Buka dalam: <span class="font-mono font-bold">${days}h ${hours}j ${minutes}m ${seconds}d</span>`;
+                    }
+                });
+            }
+            
+            setInterval(updateCountdowns, 1000);
+            updateCountdowns();
+        });
     </script>
 </body>
 </html>
