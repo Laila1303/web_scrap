@@ -15,7 +15,7 @@
     <img src="/images/mockup_top_left.png" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="Top Left">
     <img src="/images/mockup_top_right.png" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
     <img src="/images/mockup_bottom_left.png" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
-    <img src="/images/mockup_bottom_right.png" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Bottom Right">
+    <img src="/images/mockup_bottom_right.png" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Right">
     
     <!-- Main Wrapper -->
     <div class="max-w-6xl w-full mx-auto z-10 flex-1 flex flex-col justify-between gap-4 sm:gap-6 lg:gap-8">
@@ -97,49 +97,55 @@
                 </div>
             </div>
 
-            <!-- Right Side: Polaroid Trio -->
-            <div class="lg:col-span-5 min-h-[300px] bg-[#F4EFE6] border-2 border-espresso p-5 sm:p-6 rounded-xl shadow-lg relative flex items-center justify-center overflow-hidden">
-                <div class="relative w-full h-full min-h-[250px] flex items-center justify-center">
+            <!-- Right Side: Polaroid Trio (Klik / Tap untuk Timbul ke Depan) -->
+            <div class="lg:col-span-5 min-h-[320px] bg-[#F4EFE6] border-2 border-espresso p-5 sm:p-6 rounded-xl shadow-lg relative flex items-center justify-center overflow-hidden">
+                <div id="polaroid-container" class="relative w-full h-full min-h-[260px] flex items-center justify-center select-none">
                     
-                    <!-- 1. Polaroid Langit (Paling Belakang - z-10) -->
-                    <form action="{{ route('upload-polaroid', 3) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-3" class="absolute z-10 transition-all duration-300 transform -translate-y-4 rotate-[-3deg] hover:rotate-0 hover:scale-110 hover:z-50">
-                        @csrf
-                        <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-md rounded-sm select-none">
-                            <div class="w-full h-24 sm:h-28 overflow-hidden relative">
-                                <img src="/images/polaroid_3.png" class="w-full h-full object-cover filter sepia-[0.2]" alt="Langit" onerror="this.src='/images/friends_polaroid.png'">
-                            </div>
-                            <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-3').submit();">
-                            <p class="font-hand text-center text-espresso text-sm mt-1.5">Langit 🌤️</p>
-                        </label>
-                    </form>
+                    <!-- 1. Polaroid Langit (Paling Belakang Default: z-10) -->
+                    <div id="card-polaroid-3" class="polaroid-interactive-card absolute z-10 transition-all duration-300 ease-out transform -translate-y-4 rotate-[-4deg] cursor-pointer">
+                        <form action="{{ route('upload-polaroid', 3) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-3">
+                            @csrf
+                            <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-md rounded-sm select-none">
+                                <div class="w-full h-24 sm:h-28 overflow-hidden relative pointer-events-none">
+                                    <img src="/images/polaroid_3.png" class="w-full h-full object-cover filter sepia-[0.2]" alt="Langit" onerror="this.src='/images/friends_polaroid.png'">
+                                </div>
+                                <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-3').submit();">
+                                <p class="font-hand text-center text-espresso text-sm mt-1.5 pointer-events-none">Langit 🌤️</p>
+                            </label>
+                        </form>
+                    </div>
 
-                    <!-- 2. Polaroid Awan (Tengah - z-20) -->
-                    <form action="{{ route('upload-polaroid', 2) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-2" class="absolute z-20 transition-all duration-300 transform translate-x-8 translate-y-2 rotate-12 hover:rotate-0 hover:scale-110 hover:z-50">
-                        @csrf
-                        <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-lg rounded-sm select-none">
-                            <div class="w-full h-24 sm:h-28 overflow-hidden relative">
-                                <img src="/images/polaroid_2.png" class="w-full h-full object-cover filter sepia-[0.1]" alt="Awan" onerror="this.src='/images/friends_polaroid.png'">
-                            </div>
-                            <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-2').submit();">
-                            <p class="font-hand text-center text-espresso text-sm mt-1.5">Awan ☁️</p>
-                        </label>
-                    </form>
+                    <!-- 2. Polaroid Awan (Tengah Default: z-20) -->
+                    <div id="card-polaroid-2" class="polaroid-interactive-card absolute z-20 transition-all duration-300 ease-out transform translate-x-8 translate-y-2 rotate-[8deg] cursor-pointer">
+                        <form action="{{ route('upload-polaroid', 2) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-2">
+                            @csrf
+                            <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-lg rounded-sm select-none">
+                                <div class="w-full h-24 sm:h-28 overflow-hidden relative pointer-events-none">
+                                    <img src="/images/polaroid_2.png" class="w-full h-full object-cover filter sepia-[0.1]" alt="Awan" onerror="this.src='/images/friends_polaroid.png'">
+                                </div>
+                                <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-2').submit();">
+                                <p class="font-hand text-center text-espresso text-sm mt-1.5 pointer-events-none">Awan ☁️</p>
+                            </label>
+                        </form>
+                    </div>
 
-                    <!-- 3. Polaroid Salju (Paling Depan - z-30) -->
-                    <form action="{{ route('upload-polaroid', 1) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-1" class="absolute z-30 transition-all duration-300 transform -translate-x-8 translate-y-3 -rotate-12 hover:rotate-0 hover:scale-110 hover:z-50">
-                        @csrf
-                        <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-xl rounded-sm select-none">
-                            <div class="w-full h-24 sm:h-28 overflow-hidden relative">
-                                <img src="/images/polaroid_1.png" class="w-full h-full object-cover filter sepia-[0.3]" alt="Salju" onerror="this.src='/images/friends_polaroid.png'">
-                            </div>
-                            <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-1').submit();">
-                            <p class="font-hand text-center text-espresso text-sm mt-1.5">Salju ❄️</p>
-                        </label>
-                    </form>
+                    <!-- 3. Polaroid Salju (Paling Depan Default: z-30) -->
+                    <div id="card-polaroid-1" class="polaroid-interactive-card absolute z-30 transition-all duration-300 ease-out transform -translate-x-8 translate-y-3 rotate-[-8deg] cursor-pointer">
+                        <form action="{{ route('upload-polaroid', 1) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-1">
+                            @csrf
+                            <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-xl rounded-sm select-none">
+                                <div class="w-full h-24 sm:h-28 overflow-hidden relative pointer-events-none">
+                                    <img src="/images/polaroid_1.png" class="w-full h-full object-cover filter sepia-[0.3]" alt="Salju" onerror="this.src='/images/friends_polaroid.png'">
+                                </div>
+                                <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-1').submit();">
+                                <p class="font-hand text-center text-espresso text-sm mt-1.5 pointer-events-none">Salju ❄️</p>
+                            </label>
+                        </form>
+                    </div>
 
                 </div>
 
-                <div class="absolute bottom-2 right-3 font-hand text-xs text-cocoa-medium">directed by: &bull; Langit</div>
+                <div class="absolute bottom-2 right-3 font-hand text-xs text-cocoa-medium pointer-events-none">directed by: &bull; Langit</div>
             </div>
 
             <!-- Row 2: Playlist & Audio Player -->
@@ -236,9 +242,29 @@
 
     </div>
 
-    <!-- Music Player JS -->
+    <!-- Interactive Polaroid Tap & Music Player JS -->
     <script>
     (function() {
+        // Tap to bring polaroid to top without moving position
+        const polaroidCards = document.querySelectorAll('.polaroid-interactive-card');
+        polaroidCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Kembalikan semua polaroid ke layer default
+                document.getElementById('card-polaroid-3').style.zIndex = '10';
+                document.getElementById('card-polaroid-2').style.zIndex = '20';
+                document.getElementById('card-polaroid-1').style.zIndex = '30';
+                
+                polaroidCards.forEach(c => {
+                    c.classList.remove('scale-105', 'shadow-2xl');
+                });
+
+                // Angkat polaroid yang disentuh ke layer paling atas
+                this.style.zIndex = '50';
+                this.classList.add('scale-105', 'shadow-2xl');
+            });
+        });
+
+        // Background Audio Management
         if (!window.bgAudio) {
             window.bgAudio = document.createElement('audio');
             window.bgAudio.id = 'bg-audio';
