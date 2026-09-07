@@ -2,13 +2,8 @@
 
 declare(strict_types=1);
 
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
-
 define('LARAVEL_START', microtime(true));
 
-// Inisialisasi storage dinamis di /tmp (serverless writable)
 $storage = '/tmp/storage';
 $dirs = [
     $storage . '/framework/views',
