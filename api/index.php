@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-define('LARAVEL_START', microtime(true));
-
-// Setup folder writable di /tmp khusus serverless Vercel
+// Siapkan direktori storage writable di /tmp
 $storage = '/tmp/storage';
 $dirs = [
     $storage . '/framework/views',
@@ -21,28 +19,22 @@ foreach ($dirs as $dir) {
     }
 }
 
-putenv('APP_STORAGE=' . $storage);
-putenv('VIEW_COMPILED_PATH=' . $storage . '/framework/views');
-putenv('SESSION_DRIVER=cookie');
-putenv('CACHE_STORE=array');
-putenv('LOG_CHANNEL=stderr');
+// Set environment variables untuk storage & cache
+$_ENV['APP_STORAGE'] = $storage;
+$_ENV['VIEW_COMPILED_PATH'] = $storage . '/framework/views';
+$_ENV['APP_SERVICES_CACHE'] = '/tmp/bootstrap/cache/services.php';
+$_ENV['APP_PACKAGES_CACHE'] = '/tmp/bootstrap/cache/packages.php';
+$_ENV['APP_CONFIG_CACHE'] = '/tmp/bootstrap/cache/config.php';
+$_ENV['APP_ROUTES_CACHE'] = '/tmp/bootstrap/cache/routes.php';
+$_ENV['APP_EVENTS_CACHE'] = '/tmp/bootstrap/cache/events.php';
 
-// Autoload composer
-require __DIR__ . '/../vendor/autoload.php';
+putenv("APP_STORAGE={$storage}");
+putenv("VIEW_COMPILED_PATH={$storage}/framework/views");
+putenv("APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php");
+putenv("APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php");
+putenv("APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php");
+putenv("APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php");
+putenv("APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php");
 
-// Bootstrap Laravel Application
-/** @var \Illuminate\Foundation\Application $app */
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-
-if (method_exists($app, 'useStoragePath')) {
-    $app->useStoragePath($storage);
-}
-
-// Jalankan HTTP Kernel standar Laravel
-$kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
-
-$response = $kernel->handle(
-    $request = \Illuminate\Http\Request::capture()
-)->send();
-
-$kernel->terminate($request, $response);
+// Delegasikan eksekusi penuh ke file bootstrap asli Laravel
+require __DIR__ . '/../public/index.php';
