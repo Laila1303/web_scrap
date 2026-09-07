@@ -6,6 +6,63 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Kapsul Waktu - Scrapbook Kayla</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <script>
+        function openCapsule(id) {
+            var dataEl = document.getElementById('capsule-data-' + id);
+            if (!dataEl) return;
+            var sender = dataEl.getAttribute('data-sender') || 'Sahabat';
+            var date = dataEl.getAttribute('data-date') || '';
+            var content = dataEl.innerHTML;
+
+            var modalSender = document.getElementById('modal-sender');
+            var modalContent = document.getElementById('modal-content');
+            var modalDate = document.getElementById('modal-date');
+            var modal = document.getElementById('read-modal');
+
+            if (modalSender) modalSender.textContent = 'Dari: ' + sender;
+            if (modalContent) modalContent.innerHTML = content;
+            if (modalDate) modalDate.textContent = 'Dikirim pada: ' + date;
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            var modal = document.getElementById('read-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        window.openCapsule = openCapsule;
+        window.closeModal = closeModal;
+
+        function updateCountdowns() {
+            var now = new Date().getTime();
+            var timers = document.querySelectorAll('.countdown-timer');
+            
+            timers.forEach(function(timer) {
+                var targetAttr = timer.getAttribute('data-target');
+                if (!targetAttr) return;
+
+                var targetDate = new Date(targetAttr).getTime();
+                var diff = targetDate - now;
+                
+                if (diff <= 0) {
+                    timer.innerHTML = "<span class='text-green-700 font-bold'>Sudah bisa dibuka! Muat ulang halaman.</span>";
+                } else {
+                    var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    timer.innerHTML = 'Terkunci. Buka dalam: <span class="font-mono font-bold">' + days + 'h ' + hours + 'j ' + minutes + 'm ' + seconds + 'd</span>';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setInterval(updateCountdowns, 1000);
+            updateCountdowns();
+        });
+    </script>
 </head>
 <body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative overflow-x-hidden">
     
@@ -186,61 +243,5 @@
             </button>
         </div>
     </div>
-
-    <script>
-        function openCapsule(id) {
-            var dataEl = document.getElementById('capsule-data-' + id);
-            if (!dataEl) return;
-            var sender = dataEl.getAttribute('data-sender') || 'Sahabat';
-            var date = dataEl.getAttribute('data-date') || '';
-            var content = dataEl.innerHTML;
-
-            document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
-            document.getElementById('modal-content').innerHTML = content;
-            document.getElementById('modal-date').textContent = 'Dikirim pada: ' + date;
-            
-            var modal = document.getElementById('read-modal');
-            if (modal) {
-                modal.style.display = 'flex';
-            }
-        }
-
-        function closeModal() {
-            var modal = document.getElementById('read-modal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        window.openCapsule = openCapsule;
-        window.closeModal = closeModal;
-
-        function updateCountdowns() {
-            var now = new Date().getTime();
-            var timers = document.querySelectorAll('.countdown-timer');
-            
-            timers.forEach(function(timer) {
-                var targetAttr = timer.getAttribute('data-target');
-                if (!targetAttr) return;
-
-                var targetDate = new Date(targetAttr).getTime();
-                var diff = targetDate - now;
-                
-                if (diff <= 0) {
-                    timer.innerHTML = "<span class='text-green-700 font-bold'>Sudah bisa dibuka! Muat ulang halaman.</span>";
-                } else {
-                    var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    var minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
-                    var seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    
-                    timer.innerHTML = 'Terkunci. Buka dalam: <span class="font-mono font-bold">' + days + 'h ' + hours + 'j ' + minutes + 'm ' + seconds + 'd</span>';
-                }
-            });
-        }
-        
-        setInterval(updateCountdowns, 1000);
-        updateCountdowns();
-    </script>
 </body>
 </html>
