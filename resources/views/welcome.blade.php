@@ -15,7 +15,7 @@
     <img src="/images/mockup_top_left.png" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="Top Left">
     <img src="/images/mockup_top_right.png" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
     <img src="/images/mockup_bottom_left.png" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
-    <img src="/images/mockup_bottom_right.png" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Bottom Right">
+    <img src="/images/mockup_bottom_right.png" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Right">
     
     <!-- Main Wrapper -->
     <div class="max-w-6xl w-full mx-auto z-10 flex-1 flex flex-col justify-between gap-4 sm:gap-6 lg:gap-8">
@@ -52,42 +52,42 @@
         </header>
 
         <!-- Main Scrapbook Panels -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto items-stretch">
             
             <!-- Left Side: Digital Camera & Wishes -->
-            <div class="lg:col-span-7 bg-[#F4EFE6] border-2 border-espresso p-6 rounded-xl shadow-lg relative flex flex-col md:flex-row gap-6 items-center">
+            <div class="lg:col-span-7 bg-[#F4EFE6] border-2 border-espresso p-5 sm:p-6 rounded-xl shadow-lg relative flex flex-col md:flex-row gap-5 items-center">
                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-cocoa-medium text-cream-light text-[10px] uppercase font-bold tracking-wider px-4 py-1 rounded shadow">
                     📎 MEMORY ARCHIVE
                 </div>
                 
                 <!-- Digital Camera Decoration -->
-                <form action="{{ route('upload-camera-photo') }}" method="POST" enctype="multipart/form-data" id="form-camera-photo" class="w-full md:w-2/5 flex flex-col items-center">
+                <form action="{{ route('upload-camera-photo') }}" method="POST" enctype="multipart/form-data" id="form-camera-photo" class="w-full md:w-auto shrink-0 flex flex-col items-center">
                     @csrf
-                    <label for="camera_photo_input" class="w-full max-w-[180px] aspect-[4/3] rounded-lg overflow-hidden border-2 border-espresso bg-[#E5DCCB] relative group block cursor-pointer shadow-md transform hover:rotate-3 transition duration-300">
+                    <label for="camera_photo_input" class="w-[170px] sm:w-[190px] aspect-[4/3] rounded-lg overflow-hidden border-2 border-espresso bg-[#E5DCCB] relative group block cursor-pointer shadow-md transform hover:rotate-2 transition duration-300">
                         <img id="custom-camera-img" src="/images/custom_camera.png" class="w-full h-full object-cover select-none" alt="Custom Camera Photo" onerror="this.src='/images/vintage_camera.png'">
                         <input type="file" name="camera_photo" id="camera_photo_input" class="hidden" onchange="document.getElementById('form-camera-photo').submit();">
                     </label>
 
-                    <div class="mt-2 text-center">
-                        <span class="font-hand text-lg text-cocoa-medium">Kayla 20's</span>
+                    <div class="mt-1.5 text-center">
+                        <span class="font-hand text-base text-cocoa-medium">Kayla 20's</span>
                     </div>
                 </form>
 
                 <!-- Text & Blossom Ornament -->
-                <div class="flex-1 flex flex-col justify-between h-full gap-4">
+                <div class="flex-1 flex flex-col justify-center gap-3 w-full">
                     <div>
-                        <h2 class="font-serif text-3xl font-extrabold text-espresso-dark">HAPPY BDAY, Kayla!</h2>
-                        <h3 class="font-hand text-3xl text-cocoa-medium rotate-[-2deg]">On the road, 20! 🎂</h3>
+                        <h2 class="font-serif text-2xl sm:text-3xl font-extrabold text-espresso-dark leading-tight">HAPPY BDAY, Kayla!</h2>
+                        <h3 class="font-hand text-2xl sm:text-3xl text-cocoa-medium rotate-[-1deg] mt-0.5">On the road, 20! 🎂</h3>
                     </div>
                     
-                    <p class="font-serif text-sm italic leading-relaxed text-espresso/80">
+                    <p class="font-serif text-xs sm:text-sm italic leading-relaxed text-espresso/80">
                         "Selamat memasuki babak kepala dua Wib!"
                     </p>
 
-                    <div class="flex items-center gap-3 bg-cream-light/60 p-2.5 rounded-lg border border-dashed border-cocoa-light">
-                        <div class="relative flex items-center justify-center" style="width: 48px; height: 48px; flex-shrink: 0;">
-                            <img src="/images/blossom_sticker.png" class="object-contain select-none" style="width: 48px; height: 48px;" alt="Blossom Icon">
-                            <span class="absolute -top-2 -left-2 text-lg transform -rotate-12">🎉</span>
+                    <div class="flex items-center gap-3 bg-cream-light/70 p-2.5 rounded-lg border border-dashed border-cocoa-light mt-1">
+                        <div class="relative flex items-center justify-center w-10 h-10 shrink-0">
+                            <img src="/images/blossom_sticker.png" class="object-contain select-none w-10 h-10" alt="Blossom Icon">
+                            <span class="absolute -top-2 -left-1.5 text-sm transform -rotate-12">🎉</span>
                         </div>
                         <div>
                             <p class="font-serif text-xs font-bold text-espresso">Blossom :</p>
@@ -97,43 +97,43 @@
                 </div>
             </div>
 
-            <!-- Right Side: Polaroid Trio (Salju Paling Depan, Langit Paling Belakang) -->
-            <div class="lg:col-span-5 h-[340px] bg-[#F4EFE6] border-2 border-espresso p-6 rounded-xl shadow-lg relative flex items-center justify-center overflow-hidden">
-                <div class="relative w-full h-full flex items-center justify-center">
+            <!-- Right Side: Polaroid Trio -->
+            <div class="lg:col-span-5 min-h-[300px] bg-[#F4EFE6] border-2 border-espresso p-5 sm:p-6 rounded-xl shadow-lg relative flex items-center justify-center overflow-hidden">
+                <div class="relative w-full h-full min-h-[250px] flex items-center justify-center">
                     
                     <!-- 1. Polaroid Langit (Paling Belakang - z-10) -->
                     <form action="{{ route('upload-polaroid', 3) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-3" class="absolute z-10 transition-all duration-300 transform -translate-y-4 rotate-[-3deg] hover:rotate-0 hover:scale-110 hover:z-50">
                         @csrf
-                        <label class="polaroid-photo block w-40 sm:w-44 bg-white p-2.5 pb-4 border border-gray-200 cursor-pointer shadow-md rounded-sm select-none">
-                            <div class="w-full h-28 overflow-hidden relative">
+                        <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-md rounded-sm select-none">
+                            <div class="w-full h-24 sm:h-28 overflow-hidden relative">
                                 <img src="/images/polaroid_3.png" class="w-full h-full object-cover filter sepia-[0.2]" alt="Langit" onerror="this.src='/images/friends_polaroid.png'">
                             </div>
                             <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-3').submit();">
-                            <p class="font-hand text-center text-espresso text-base mt-2">Langit 🌤️</p>
+                            <p class="font-hand text-center text-espresso text-sm mt-1.5">Langit 🌤️</p>
                         </label>
                     </form>
 
                     <!-- 2. Polaroid Awan (Tengah - z-20) -->
-                    <form action="{{ route('upload-polaroid', 2) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-2" class="absolute z-20 transition-all duration-300 transform translate-x-10 translate-y-2 rotate-12 hover:rotate-0 hover:scale-110 hover:z-50">
+                    <form action="{{ route('upload-polaroid', 2) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-2" class="absolute z-20 transition-all duration-300 transform translate-x-8 translate-y-2 rotate-12 hover:rotate-0 hover:scale-110 hover:z-50">
                         @csrf
-                        <label class="polaroid-photo block w-40 sm:w-44 bg-white p-2.5 pb-4 border border-gray-200 cursor-pointer shadow-lg rounded-sm select-none">
-                            <div class="w-full h-28 overflow-hidden relative">
+                        <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-lg rounded-sm select-none">
+                            <div class="w-full h-24 sm:h-28 overflow-hidden relative">
                                 <img src="/images/polaroid_2.png" class="w-full h-full object-cover filter sepia-[0.1]" alt="Awan" onerror="this.src='/images/friends_polaroid.png'">
                             </div>
                             <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-2').submit();">
-                            <p class="font-hand text-center text-espresso text-base mt-2">Awan ☁️</p>
+                            <p class="font-hand text-center text-espresso text-sm mt-1.5">Awan ☁️</p>
                         </label>
                     </form>
 
                     <!-- 3. Polaroid Salju (Paling Depan - z-30) -->
-                    <form action="{{ route('upload-polaroid', 1) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-1" class="absolute z-30 transition-all duration-300 transform -translate-x-10 translate-y-3 -rotate-12 hover:rotate-0 hover:scale-110 hover:z-50">
+                    <form action="{{ route('upload-polaroid', 1) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-1" class="absolute z-30 transition-all duration-300 transform -translate-x-8 translate-y-3 -rotate-12 hover:rotate-0 hover:scale-110 hover:z-50">
                         @csrf
-                        <label class="polaroid-photo block w-40 sm:w-44 bg-white p-2.5 pb-4 border border-gray-200 cursor-pointer shadow-xl rounded-sm select-none">
-                            <div class="w-full h-28 overflow-hidden relative">
+                        <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-xl rounded-sm select-none">
+                            <div class="w-full h-24 sm:h-28 overflow-hidden relative">
                                 <img src="/images/polaroid_1.png" class="w-full h-full object-cover filter sepia-[0.3]" alt="Salju" onerror="this.src='/images/friends_polaroid.png'">
                             </div>
                             <input type="file" name="polaroid_photo" class="hidden" onchange="document.getElementById('form-polaroid-1').submit();">
-                            <p class="font-hand text-center text-espresso text-base mt-2">Salju ❄️</p>
+                            <p class="font-hand text-center text-espresso text-sm mt-1.5">Salju ❄️</p>
                         </label>
                     </form>
 
@@ -143,14 +143,14 @@
             </div>
 
             <!-- Row 2: Playlist & Audio Player -->
-            <div class="lg:col-span-12 bg-espresso text-cream-light p-6 rounded-xl shadow-lg border-2 border-espresso flex flex-col md:flex-row items-center gap-6 justify-between relative overflow-hidden">
+            <div class="lg:col-span-12 bg-espresso text-cream-light p-5 sm:p-6 rounded-xl shadow-lg border-2 border-espresso flex flex-col md:flex-row items-center gap-5 justify-between relative overflow-hidden">
                 <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-tiramisu-dark/10 rounded-full blur-2xl"></div>
                 
                 <div class="flex items-center gap-4 z-10 w-full md:w-auto">
                     <!-- Album Cover -->
                     <form action="{{ route('upload-kayla') }}" method="POST" enctype="multipart/form-data" id="form-kayla-photo" class="shrink-0">
                         @csrf
-                        <label class="w-20 h-20 rounded-lg overflow-hidden border border-tiramisu-light/30 shrink-0 relative group block cursor-pointer">
+                        <label class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-tiramisu-light/30 shrink-0 relative group block cursor-pointer">
                             <img id="player-album-art" src="/images/kayla.jpg" class="w-full h-full object-cover" alt="Kayla" onerror="this.src='/images/custom_camera.png'">
                             <input type="file" name="kayla_photo" class="hidden" onchange="document.getElementById('form-kayla-photo').submit();">
                         </label>
@@ -159,7 +159,7 @@
                     <!-- Track Details -->
                     <div class="min-w-[180px] sm:min-w-[240px] md:min-w-[280px] max-w-[320px] flex flex-col justify-center overflow-hidden">
                         <span class="bg-tiramisu-light/20 text-tiramisu-light text-[9px] font-bold tracking-widest px-2 py-0.5 rounded-full uppercase w-max">KAYLA'S PLAYLIST</span>
-                        <h4 id="player-track-title" class="font-serif text-xl font-bold mt-1 text-tiramisu-light truncate">Happy Birthday, Kayla</h4>
+                        <h4 id="player-track-title" class="font-serif text-lg sm:text-xl font-bold mt-1 text-tiramisu-light truncate">Happy Birthday, Kayla</h4>
                         <p id="player-artist" class="font-hand text-sm text-tiramisu-light/70 truncate">From Langit &hearts;</p>
                     </div>
                 </div>
@@ -200,33 +200,33 @@
 
         <!-- Bottom Navigation Area -->
         <footer class="flex flex-col items-center mt-4">
-            <div class="flex items-center gap-2 mb-4 animate-bounce">
-                <span class="font-serif font-bold text-espresso text-lg tracking-wider">JELAJAHI DI SINI</span>
-                <svg class="w-8 h-8 text-cocoa-medium transform rotate-[15deg]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <div class="flex items-center gap-2 mb-3 animate-bounce">
+                <span class="font-serif font-bold text-espresso text-base sm:text-lg tracking-wider">JELAJAHI DI SINI</span>
+                <svg class="w-6 h-6 sm:w-8 sm:h-8 text-cocoa-medium transform rotate-[15deg]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                <a href="{{ route('photobooth') }}" class="paper-patch bg-[#FAF0E6] border-2 border-espresso p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 w-full">
+                <a href="{{ route('photobooth') }}" class="paper-patch bg-[#FAF0E6] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
                     <span class="text-2xl">📸</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">DIY Photobooth</span>
                     <span class="font-hand text-xs text-cocoa-medium">3 Strip Foto Lucu</span>
                 </a>
                 
-                <a href="{{ route('gallery') }}" class="paper-patch bg-[#FDF5E6] border-2 border-espresso p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30">
+                <a href="{{ route('gallery') }}" class="paper-patch bg-[#FDF5E6] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
                     <span class="text-2xl">🎞️</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">Friendship Galery</span>
                     <span class="font-hand text-xs text-cocoa-medium">Open Our Galery</span>
                 </a>
 
-                <a href="{{ route('surat-dari-aku') }}" class="paper-patch bg-[#FAEBD7] border-2 border-espresso p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30">
+                <a href="{{ route('surat-dari-aku') }}" class="paper-patch bg-[#FAEBD7] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
                     <span class="text-2xl">💌</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">A Letter for Wibu</span>
                     <span class="font-hand text-xs text-cocoa-medium">Opening Letter</span>
                 </a>
 
-                <a href="{{ route('kapsul-waktu') }}" class="paper-patch bg-[#F5F5DC] border-2 border-espresso p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30">
+                <a href="{{ route('kapsul-waktu') }}" class="paper-patch bg-[#F5F5DC] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
                     <span class="text-2xl">🔒</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">Kapsul Waktu</span>
                     <span class="font-hand text-xs text-cocoa-medium">Pesan untuk Masa Depan</span>
