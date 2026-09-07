@@ -48,7 +48,7 @@
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 my-auto items-start">
             
-            <!-- Left Column: Input Form (5 Cols) -->
+            <!-- Left Column: Input Form -->
             <div class="lg:col-span-5 bg-[#F4EFE6] border-2 border-espresso p-6 rounded-xl shadow-md flex flex-col gap-4 relative">
                 <div class="absolute -top-3 left-1/3 w-28 h-6 paper-tape transform rotate-[-2deg] opacity-75"></div>
                 
@@ -103,7 +103,7 @@
                 </form>
             </div>
 
-            <!-- Right Column: Time Capsule Display List (7 Cols) -->
+            <!-- Right Column: Time Capsule Display List -->
             <div class="lg:col-span-7 flex flex-col gap-4">
                 <h3 class="font-serif text-lg font-bold text-espresso-dark">Koleksi Kapsul Waktu Kayla</h3>
 
@@ -143,7 +143,7 @@
                                     <div id="capsule-data-{{ $capsule->id }}" class="hidden"
                                          data-sender="{{ $capsule->sender }}"
                                          data-date="{{ $capsule->created_at->format('d M Y') }}">{!! nl2br(e($capsule->content)) !!}</div>
-                                    <button type="button" onclick="openCapsule({{ $capsule->id }})" class="px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer shadow">
+                                    <button type="button" onclick="openCapsule({{ $capsule->id }})" class="relative z-20 px-4 py-1.5 bg-espresso text-cream-light font-serif text-xs rounded hover:bg-cocoa-medium transition cursor-pointer shadow">
                                         BACA SEKARANG &rarr;
                                     </button>
                                 @else
@@ -168,7 +168,7 @@
     </div>
 
     <!-- Read Modal -->
-    <div id="read-modal" style="display: none;" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[999]">
+    <div id="read-modal" style="display: none;" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[9999]">
         <div class="bg-cream-light border-2 border-espresso max-w-lg w-full rounded-xl shadow-2xl p-6 relative flex flex-col gap-4">
             <button onclick="closeModal()" type="button" class="absolute top-4 right-4 text-espresso-dark font-bold hover:text-cocoa-medium text-2xl leading-none cursor-pointer">&times;</button>
             
@@ -189,51 +189,52 @@
 
     <script>
         function openCapsule(id) {
-            const dataEl = document.getElementById('capsule-data-' + id);
+            var dataEl = document.getElementById('capsule-data-' + id);
             if (!dataEl) return;
-            const sender = dataEl.getAttribute('data-sender') || 'Sahabat';
-            const date = dataEl.getAttribute('data-date') || '';
-            const content = dataEl.innerHTML;
+            var sender = dataEl.getAttribute('data-sender') || 'Sahabat';
+            var date = dataEl.getAttribute('data-date') || '';
+            var content = dataEl.innerHTML;
 
-            const modalSender = document.getElementById('modal-sender');
-            const modalContent = document.getElementById('modal-content');
-            const modalDate = document.getElementById('modal-date');
-            const modal = document.getElementById('read-modal');
-
-            if (modalSender) modalSender.textContent = 'Dari: ' + sender;
-            if (modalContent) modalContent.innerHTML = content;
-            if (modalDate) modalDate.textContent = 'Dikirim pada: ' + date;
-            if (modal) modal.style.display = 'flex';
+            document.getElementById('modal-sender').textContent = 'Dari: ' + sender;
+            document.getElementById('modal-content').innerHTML = content;
+            document.getElementById('modal-date').textContent = 'Dikirim pada: ' + date;
+            
+            var modal = document.getElementById('read-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
         }
 
         function closeModal() {
-            const modal = document.getElementById('read-modal');
-            if (modal) modal.style.display = 'none';
+            var modal = document.getElementById('read-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
 
         window.openCapsule = openCapsule;
         window.closeModal = closeModal;
 
         function updateCountdowns() {
-            const now = new Date().getTime();
-            const timers = document.querySelectorAll('.countdown-timer');
+            var now = new Date().getTime();
+            var timers = document.querySelectorAll('.countdown-timer');
             
-            timers.forEach(timer => {
-                const targetAttr = timer.getAttribute('data-target');
+            timers.forEach(function(timer) {
+                var targetAttr = timer.getAttribute('data-target');
                 if (!targetAttr) return;
 
-                const targetDate = new Date(targetAttr).getTime();
-                const diff = targetDate - now;
+                var targetDate = new Date(targetAttr).getTime();
+                var diff = targetDate - now;
                 
                 if (diff <= 0) {
                     timer.innerHTML = "<span class='text-green-700 font-bold'>Sudah bisa dibuka! Muat ulang halaman.</span>";
                 } else {
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((diff % (1000 * 60)) / 1000);
                     
-                    timer.innerHTML = `Terkunci. Buka dalam: <span class="font-mono font-bold">${days}h ${hours}j ${minutes}m ${seconds}d</span>`;
+                    timer.innerHTML = 'Terkunci. Buka dalam: <span class="font-mono font-bold">' + days + 'h ' + hours + 'j ' + minutes + 'm ' + seconds + 'd</span>';
                 }
             });
         }
