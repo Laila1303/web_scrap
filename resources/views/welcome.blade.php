@@ -15,7 +15,7 @@
     <img src="/images/mockup_top_left.png" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-10 select-none" alt="Top Left">
     <img src="/images/mockup_top_right.png" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
     <img src="/images/mockup_bottom_left.png" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
-    <img src="/images/mockup_bottom_right.png" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Right">
+    <img src="/images/mockup_bottom_right.png" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-10 select-none" alt="Bottom Right">
     
     <!-- Main Wrapper -->
     <div class="max-w-6xl w-full mx-auto z-10 flex-1 flex flex-col justify-between gap-4 sm:gap-6 lg:gap-8">
@@ -73,9 +73,9 @@
                     </div>
                 </form>
 
-                <!-- Text & Blossom Ornament -->
-                <div class="flex-1 flex flex-col justify-center gap-3 w-full">
-                    <div>
+                <!-- Text & Blossom Ornament (Center di HP, Left di Desktop) -->
+                <div class="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left gap-3 w-full">
+                    <div class="w-full">
                         <h2 class="font-serif text-2xl sm:text-3xl font-extrabold text-espresso-dark leading-tight">HAPPY BDAY, Kayla!</h2>
                         <h3 class="font-hand text-2xl sm:text-3xl text-cocoa-medium rotate-[-1deg] mt-0.5">On the road, 20! 🎂</h3>
                     </div>
@@ -84,7 +84,7 @@
                         "Selamat memasuki babak kepala dua Wib!"
                     </p>
 
-                    <div class="flex items-center gap-3 bg-cream-light/70 p-2.5 rounded-lg border border-dashed border-cocoa-light mt-1">
+                    <div class="flex items-center justify-center md:justify-start gap-3 bg-cream-light/70 p-2.5 rounded-lg border border-dashed border-cocoa-light mt-1 w-full max-w-sm md:max-w-none text-left">
                         <div class="relative flex items-center justify-center w-10 h-10 shrink-0">
                             <img src="/images/blossom_sticker.png" class="object-contain select-none w-10 h-10" alt="Blossom Icon">
                             <span class="absolute -top-2 -left-1.5 text-sm transform -rotate-12">🎉</span>
