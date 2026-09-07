@@ -1,15 +1,152 @@
-<script>
-    function initPhotobooth() {
-        const video = document.getElementById('webcam');
-        const canvas = document.getElementById('capture-canvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
-        const startBtn = document.getElementById('start-camera-btn');
-        const snapBtn = document.getElementById('snap-btn');
-        const countdownOverlay = document.getElementById('countdown-overlay');
-        const countdownNum = document.getElementById('countdown-number');
-        const flashOverlay = document.getElementById('flash-overlay');
-        const manualInput = document.getElementById('manual-photos-input');
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DIY Photobooth - Scrapbook Kayla</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
+<body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-between relative overflow-x-hidden">
+    
+    <!-- Dekorasi Sudut -->
+    <img src="{{ asset('images/mockup_top_left.png') }}" class="absolute top-0 left-0 w-20 sm:w-28 md:w-36 lg:w-52 opacity-95 pointer-events-none z-0 select-none" alt="Top Left">
+    <img src="{{ asset('images/mockup_top_right.png') }}" class="absolute top-0 right-0 w-24 sm:w-32 md:w-44 lg:w-64 opacity-95 pointer-events-none z-0 select-none" alt="Top Right">
+    <img src="{{ asset('images/mockup_bottom_left.png') }}" class="absolute bottom-0 left-0 w-24 sm:w-36 md:w-48 lg:w-72 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Left">
+    <img src="{{ asset('images/mockup_bottom_right.png') }}" class="absolute bottom-0 right-0 w-16 sm:w-20 md:w-28 lg:w-40 opacity-95 pointer-events-none z-0 select-none" alt="Bottom Right">
+    
+    <!-- Main Content Wrapper -->
+    <div class="max-w-4xl w-full mx-auto relative z-10 flex-1 flex flex-col gap-4 sm:gap-6">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center border-b border-cocoa-light/20 pb-4">
+            <div class="flex items-center gap-3">
+                <a href="{{ route('dashboard') }}" class="px-3 py-1 bg-espresso text-cream-light font-serif text-sm rounded shadow hover:bg-cocoa-medium transition">
+                    &larr; KEMBALI
+                </a>
+                <h1 class="font-serif text-2xl md:text-3xl font-bold text-espresso-dark">📸 DIY PHOTOBOOTH</h1>
+            </div>
+            <span class="font-hand text-xl text-cocoa-medium">3 Strip Foto Ulang Tahun</span>
+        </header>
 
+        <!-- Main Area -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 my-auto items-start">
+            
+            <!-- Left Side: Kamera & Input Foto -->
+            <div class="md:col-span-7 bg-[#F4EFE6] border-2 border-espresso p-4 sm:p-6 rounded-xl shadow-md relative flex flex-col items-center gap-4">
+                
+                <!-- Placeholder Kamera -->
+                <div id="camera-placeholder" class="w-full aspect-video rounded-lg border-2 border-dashed border-espresso bg-[#FAF7F2] flex flex-col items-center justify-center gap-2 p-4 text-center">
+                    <span class="text-4xl sm:text-5xl">📷</span>
+                    <h4 class="font-serif text-sm font-bold text-espresso-dark">Kamera Live / Unggah Foto</h4>
+                    <p class="font-hand text-xs text-cocoa-medium max-w-sm">Aktifkan kamera live di bawah atau pilih foto langsung dari perangkat kamu.</p>
+                </div>
+
+                <!-- Live Webcam Box -->
+                <div id="webcam-container" class="hidden relative w-full aspect-video bg-black rounded-lg overflow-hidden border-2 border-espresso shadow-inner">
+                    <video id="webcam" class="w-full h-full object-cover transform -scale-x-100" autoplay playsinline muted></video>
+                    
+                    <div id="countdown-overlay" class="absolute inset-0 bg-black/60 hidden flex items-center justify-center text-8xl font-serif text-cream-light z-30">
+                        <span id="countdown-number">3</span>
+                    </div>
+
+                    <div id="flash-overlay" class="absolute inset-0 pointer-events-none z-40 opacity-0 bg-white transition-opacity duration-200"></div>
+                </div>
+
+                <!-- 3 Thumbnail Slots -->
+                <div class="flex gap-4 justify-center w-full">
+                    <div id="slot-btn-0" class="w-24 aspect-[4/3] bg-espresso/10 border-2 border-dashed border-espresso rounded overflow-hidden relative cursor-pointer flex items-center justify-center hover:bg-espresso/20 transition">
+                        <img id="thumb-0" class="w-full h-full object-cover hidden" alt="Foto 1">
+                        <span id="label-0" class="font-hand text-xs text-cocoa-medium text-center font-bold">📸 FOTO 1</span>
+                        <input type="file" id="photo-input-0" accept="image/*" class="hidden">
+                    </div>
+                    <div id="slot-btn-1" class="w-24 aspect-[4/3] bg-espresso/10 border-2 border-dashed border-espresso rounded overflow-hidden relative cursor-pointer flex items-center justify-center hover:bg-espresso/20 transition">
+                        <img id="thumb-1" class="w-full h-full object-cover hidden" alt="Foto 2">
+                        <span id="label-1" class="font-hand text-xs text-cocoa-medium text-center font-bold">📸 FOTO 2</span>
+                        <input type="file" id="photo-input-1" accept="image/*" class="hidden">
+                    </div>
+                    <div id="slot-btn-2" class="w-24 aspect-[4/3] bg-espresso/10 border-2 border-dashed border-espresso rounded overflow-hidden relative cursor-pointer flex items-center justify-center hover:bg-espresso/20 transition">
+                        <img id="thumb-2" class="w-full h-full object-cover hidden" alt="Foto 3">
+                        <span id="label-2" class="font-hand text-xs text-cocoa-medium text-center font-bold">📸 FOTO 3</span>
+                        <input type="file" id="photo-input-2" accept="image/*" class="hidden">
+                    </div>
+                </div>
+
+                <!-- Form Kustomisasi Strip -->
+                <div class="w-full bg-[#FAF7F2] p-4 rounded-lg border border-cocoa-light/20 flex flex-col gap-3 text-left">
+                    <span class="font-serif text-xs font-bold text-espresso-dark uppercase tracking-wider">[ 🎨 KUSTOMISASI STRIP FOTO ]</span>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-1">
+                            <label class="font-serif text-[10px] font-bold text-espresso">Tulisan Atas (Header):</label>
+                            <input type="text" id="header_text" value="Capturing Moments" class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-serif text-[10px] font-bold text-espresso">Tulisan Bawah (Footer):</label>
+                            <input type="text" id="footer_text" value="On the road, 20!" class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-serif text-[10px] font-bold text-espresso">Gaya/Style Strip Foto:</label>
+                            <select id="style_theme" class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none">
+                                <option value="classic_vintage" selected>Classic Vintage (Scrapbook) 📎</option>
+                                <option value="denim_y2k">Denim Stars (Y2K Denim) 👖</option>
+                                <option value="ppg_collage">Powerpuff Girls (PPG Collage) 🎀</option>
+                                <option value="polaroid_printer">Retro Polaroid (Printer) 📸</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-serif text-[10px] font-bold text-espresso">Bentuk Frame Foto:</label>
+                            <select id="photo_shape" class="text-xs bg-cream-light p-2 rounded border border-cocoa-light focus:outline-none">
+                                <option value="square" selected>Retro Kotak (Standard)</option>
+                                <option value="oval">Elips Kuno (Oval Referensi)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi Kamera -->
+                <div class="flex flex-wrap gap-3 w-full justify-center mt-1">
+                    <button id="start-camera-btn" type="button" class="px-5 py-2.5 bg-tiramisu-dark text-espresso font-serif font-bold rounded-lg border-2 border-espresso shadow hover:bg-tiramisu-light transition cursor-pointer">
+                        📹 AKTIFKAN KAMERA
+                    </button>
+                    <button id="snap-btn" type="button" class="px-5 py-2.5 bg-espresso text-cream-light font-serif font-bold rounded-lg shadow hover:bg-cocoa-medium transition hidden cursor-pointer">
+                        📸 MULAI CETAK 3 FOTO OTOMATIS
+                    </button>
+                </div>
+
+                <!-- Input File Native -->
+                <div class="border-t border-dashed border-cocoa-light/30 pt-3 w-full flex flex-col items-center gap-2">
+                    <span class="font-hand text-xs text-cocoa-medium">Pilih 3 foto sekaligus dari penyimpanan laptop:</span>
+                    <input type="file" id="manual-photos-input" multiple accept="image/*" class="text-xs text-espresso file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-bold file:bg-espresso file:text-cream-light hover:file:bg-cocoa-medium cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Right Side: Preview Output Strip -->
+            <div class="md:col-span-5 flex flex-col items-center gap-4">
+                <h3 class="font-serif text-lg font-bold text-espresso-dark">CETAKAN STRIP KAMU</h3>
+                
+                <div id="output-wrapper" class="w-full max-w-[260px] bg-cream-light p-4 rounded paper-border relative flex flex-col items-center justify-center min-h-[380px] border border-gray-200 shadow-md">
+                    <div id="strip-placeholder" class="text-center p-6 flex flex-col items-center">
+                        <span class="text-4xl mb-2">🎞️</span>
+                        <p class="font-hand text-lg text-cocoa-medium">Strip fotomu yang sudah berdesain rapi akan muncul di sini.</p>
+                    </div>
+                    
+                    <img id="final-strip" class="w-full h-auto hidden object-contain rounded shadow" alt="Stitched Photo Strip">
+                </div>
+
+                <a id="download-btn" href="#" download="kayla_photobooth_strip.png" class="px-5 py-2.5 bg-espresso text-cream-light font-serif font-bold rounded shadow hover:bg-cocoa-medium transition hidden">
+                    💾 UNDUH STRIP FOTO
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Hidden Capture Canvas -->
+    <canvas id="capture-canvas" class="hidden"></canvas>
+
+    <script>
+    (function() {
         let streamTrack = null;
         let capturedImages = [null, null, null];
 
@@ -89,6 +226,7 @@
         }
 
         // 1. Upload 3 Foto Sekaligus
+        const manualInput = document.getElementById('manual-photos-input');
         if (manualInput) {
             manualInput.onchange = async function(e) {
                 const files = Array.from(e.target.files || []);
@@ -115,10 +253,7 @@
             const input = document.getElementById('photo-input-' + idx);
 
             if (slot && input) {
-                slot.onclick = function(e) {
-                    e.preventDefault();
-                    input.click();
-                };
+                slot.onclick = function() { input.click(); };
                 input.onchange = async function(e) {
                     const file = e.target.files[0];
                     if (!file) return;
@@ -138,12 +273,15 @@
         });
 
         // 3. Aktifkan Kamera
+        const startBtn = document.getElementById('start-camera-btn');
+        const snapBtn = document.getElementById('snap-btn');
+        const video = document.getElementById('webcam');
+
         if (startBtn) {
-            startBtn.onclick = async function(e) {
-                e.preventDefault();
+            startBtn.onclick = async function() {
                 try {
                     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                        alert('Akses kamera tidak didukung di browser ini. Gunakan fitur upload foto di bawah.');
+                        alert('Kamera dibatasi atau tidak didukung pada browser ini. Silakan gunakan tombol pilih foto di bawah.');
                         return;
                     }
 
@@ -161,16 +299,21 @@
                     startBtn.classList.add('hidden');
                     snapBtn.classList.remove('hidden');
                 } catch (err) {
-                    console.error("Camera error:", err);
-                    alert('Tidak dapat mengaktifkan kamera (' + err.name + '). Pastikan izin kamera telah diberikan di browser.');
+                    console.error("Camera access error:", err);
+                    alert('Tidak dapat mengaktifkan kamera (' + err.name + '). Pastikan izin kamera telah diberikan di browser atau pilih foto langsung dari laptop.');
                 }
             };
         }
 
         // 4. Capture Otomatis 3 Foto
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const countdownNum = document.getElementById('countdown-number');
+        const flashOverlay = document.getElementById('flash-overlay');
+        const canvas = document.getElementById('capture-canvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+
         if (snapBtn) {
-            snapBtn.onclick = async function(e) {
-                e.preventDefault();
+            snapBtn.onclick = async function() {
                 capturedImages = [null, null, null];
                 snapBtn.disabled = true;
                 snapBtn.textContent = 'MENGAMBIL FOTO...';
@@ -522,12 +665,7 @@
                 };
             }
         });
-    }
-
-    // Langsung jalankan tanpa menunggu DOMContentLoaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initPhotobooth);
-    } else {
-        initPhotobooth();
-    }
+    })();
     </script>
+</body>
+</html>
