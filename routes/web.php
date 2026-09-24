@@ -105,7 +105,7 @@ Route::post('/upload-polaroid/{id}', function (Request $request, $id) {
     return redirect()->back()->with('error', 'Gagal memperbarui polaroid.');
 })->name('upload-polaroid');
 
-// 7. Daily Journal & Mood Tracker (Filter Khusus Hari Ini)
+// 7. Daily Journal & Mood Tracker (Smart Daily Rollover)
 Route::get('/daily-journal', function () {
     $today = now()->toDateString();
     $todos = [];
@@ -114,9 +114,19 @@ Route::get('/daily-journal', function () {
     try {
         if (class_exists(Todo::class)) {
             $todos = Todo::where(function ($query) use ($today) {
+                            // 1. Ambil target yang dicatat hari ini
                             $query->whereDate('date', $today)
                                   ->orWhereDate('created_at', $today);
                         })
+                        ->orWhere(function ($query) use ($today) {
+                            // 2. ATAU tugas hari sebelumnya yang BELUM SELESAI
+                            $query->where('is_completed', false)
+                                  ->where(function ($q) use ($today) {
+                                      $q->whereDate('date', '<', $today)
+                                        ->orWhereDate('created_at', '<', $today);
+                                  });
+                        })
+                        ->orderBy('is_completed', 'asc') // Yang belum diceklis tampil di atas
                         ->orderBy('id', 'asc')
                         ->get();
         }
@@ -157,7 +167,7 @@ Route::post('/daily-mood', function (Request $request) {
     }
 })->name('mood.store');
 
-// Simpan Catatan To-Do Baru (Tersimpan dengan Tanggal Hari Ini)
+// Simpan Catatan To-Do Baru (Disimpan dengan tanggal hari ini)
 Route::post('/daily-journal', function (Request $request) {
     $request->validate([
         'task' => 'required|string|max:255'
