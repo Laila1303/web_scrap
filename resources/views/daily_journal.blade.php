@@ -23,7 +23,7 @@
             </a>
             <div class="text-center">
                 <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-espresso-dark">KAYLA'S JOURNAL</h1>
-                <p class="font-hand text-base sm:text-lg text-cocoa-medium">Page 20 / 365 🌸</p>
+                <p class="font-hand text-base sm:text-lg text-cocoa-medium">Page 20 🌸</p>
             </div>
             <div class="w-16"></div>
         </header>
