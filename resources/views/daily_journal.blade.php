@@ -28,9 +28,22 @@
             <div class="w-16"></div>
         </header>
 
+        <!-- Flash Messages -->
         @if (session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded font-serif text-xs text-center z-50">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded font-serif text-xs text-center z-50">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="bg-amber-100 border border-amber-400 text-amber-800 px-3 py-2 rounded font-serif text-xs text-center z-50">
+                {{ $errors->first() }}
             </div>
         @endif
 
@@ -46,7 +59,7 @@
                     <span class="font-mono text-[10px] uppercase tracking-wider text-cocoa-medium">DATE: {{ date('d M Y') }}</span>
                     <h3 class="font-serif text-xs sm:text-sm font-bold text-espresso">Today's Mood: 
                         <span class="font-hand text-base text-cocoa-medium font-normal">
-                            {{ $todayMood ? $todayMood->mood_emoji.' '.$todayMood->mood_label : 'Belum dipilih' }}
+                            {{ $todayMood ? ($todayMood->mood_emoji . ' ' . $todayMood->mood_label) : 'Belum dipilih' }}
                         </span>
                     </h3>
                 </div>
@@ -64,7 +77,7 @@
                     @endphp
 
                     @foreach($moods as $m)
-                        <form action="{{ route('mood.store') }}" method="POST" class="inline">
+                        <form action="{{ route('mood.store') }}" method="POST" class="inline m-0 p-0">
                             @csrf
                             <input type="hidden" name="mood_emoji" value="{{ $m['emoji'] }}">
                             <input type="hidden" name="mood_label" value="{{ $m['label'] }}">
@@ -76,13 +89,13 @@
                 </div>
             </div>
 
-            <!-- To-Do List Khusus Hari Ini -->
+            <!-- To-Do List Khusus Hari Ini & Rollover Tugas Kemarin -->
             <div class="border-l-4 border-double border-cocoa-light/40 pl-3 sm:pl-5 py-2 flex flex-col gap-1 min-h-[260px]">
                 
                 @forelse($todos as $todo)
                     <div class="flex items-center justify-between gap-2 border-b border-cocoa-light/20 py-2 hover:bg-black/[0.02] transition px-1">
                         <!-- Checklist Button + Text -->
-                        <form action="{{ route('todo.toggle', $todo->id) }}" method="POST" class="flex items-center gap-2.5 flex-1 min-w-0">
+                        <form action="{{ route('todo.toggle', $todo->id) }}" method="POST" class="flex items-center gap-2.5 flex-1 min-w-0 m-0">
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="w-5 h-5 rounded border-2 border-espresso shrink-0 flex items-center justify-center text-xs transition cursor-pointer {{ $todo->is_completed ? 'bg-espresso text-cream-light font-bold' : 'bg-white hover:bg-cream-light' }}">
@@ -94,7 +107,7 @@
                         </form>
 
                         <!-- Tombol Hapus -->
-                        <form action="{{ route('todo.destroy', $todo->id) }}" method="POST" class="shrink-0" onsubmit="return confirm('Hapus catatan ini?')">
+                        <form action="{{ route('todo.destroy', $todo->id) }}" method="POST" class="shrink-0 m-0" onsubmit="return confirm('Hapus catatan ini?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-xs text-cocoa-light hover:text-red-600 transition px-1.5 py-0.5 font-bold">
