@@ -3,6 +3,8 @@
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\PhotoboothController;
 use App\Http\Controllers\TimeCapsuleController;
+use App\Models\DailyMood;
+use App\Models\Todo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -102,3 +104,87 @@ Route::post('/upload-polaroid/{id}', function (Request $request, $id) {
     }
     return redirect()->back()->with('error', 'Gagal memperbarui polaroid.');
 })->name('upload-polaroid');
+
+// 7. Daily Journal & Mood Tracker (Anti-Crash 500)
+Route::get('/daily-journal', function () {
+    $todos = [];
+    $todayMood = null;
+
+    try {
+        if (class_exists(Todo::class)) {
+            $todos = Todo::orderBy('id', 'asc')->get();
+        }
+    } catch (\Throwable $e) {
+        $todos = [];
+    }
+
+    try {
+        if (class_exists(DailyMood::class)) {
+            $today = now()->toDateString();
+            $todayMood = DailyMood::where('date', $today)->latest()->first();
+        }
+    } catch (\Throwable $e) {
+        $todayMood = null;
+    }
+
+    return view('daily_journal', compact('todos', 'todayMood'));
+})->name('daily-journal');
+
+// Simpan Mood Harian
+Route::post('/daily-mood', function (Request $request) {
+    $request->validate([
+        'mood_emoji' => 'required|string',
+        'mood_label' => 'required|string',
+    ]);
+
+    try {
+        $today = now()->toDateString();
+        DailyMood::updateOrCreate(
+            ['date' => $today],
+            [
+                'mood_emoji' => $request->mood_emoji,
+                'mood_label' => $request->mood_label,
+            ]
+        );
+        return redirect()->route('daily-journal')->with('success', 'Mood hari ini berhasil dicatat! ✨');
+    } catch (\Throwable $e) {
+        return redirect()->route('daily-journal')->with('error', 'Gagal mencatat mood: ' . $e->getMessage());
+    }
+})->name('mood.store');
+
+// Simpan Catatan To-Do Baru
+Route::post('/daily-journal', function (Request $request) {
+    $request->validate([
+        'task' => 'required|string|max:255'
+    ]);
+
+    try {
+        Todo::create([
+            'task' => $request->task,
+            'is_completed' => false
+        ]);
+        return redirect()->route('daily-journal')->with('success', 'Catatan baru berhasil ditambahkan! 🌸');
+    } catch (\Throwable $e) {
+        return redirect()->route('daily-journal')->with('error', 'Gagal menambahkan catatan: ' . $e->getMessage());
+    }
+})->name('todo.store');
+
+// Toggle Ceklis To-Do
+Route::patch('/daily-journal/{todo}/toggle', function (Todo $todo) {
+    try {
+        $todo->update([
+            'is_completed' => !$todo->is_completed
+        ]);
+    } catch (\Throwable $e) {}
+    return redirect()->route('daily-journal');
+})->name('todo.toggle');
+
+// Hapus Catatan To-Do
+Route::delete('/daily-journal/{todo}', function (Todo $todo) {
+    try {
+        $todo->delete();
+        return redirect()->route('daily-journal')->with('success', 'Catatan berhasil dihapus!');
+    } catch (\Throwable $e) {
+        return redirect()->route('daily-journal')->with('error', 'Gagal menghapus catatan.');
+    }
+})->name('todo.destroy');

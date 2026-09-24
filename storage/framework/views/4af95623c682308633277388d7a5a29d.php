@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>Scrapbook Digital Kayla</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 </head>
 <body class="scrapbook-paper linen-texture min-h-screen text-espresso font-sans flex flex-col justify-between p-2 sm:p-4 md:p-8 relative overflow-x-hidden">
     
@@ -18,27 +18,29 @@
     <!-- Main Wrapper -->
     <div class="max-w-6xl w-full mx-auto z-10 flex-1 flex flex-col justify-between gap-4 sm:gap-6 lg:gap-8">
         
-        @if ($errors->any())
+        <?php if($errors->any()): ?>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative font-serif text-sm z-50">
                 <strong class="font-bold">Gagal memperbarui foto:</strong>
                 <ul class="list-disc pl-5 mt-1">
                     ($errors->all() as$errorMsg)
-                        <li>{{ $errorMsg }}</li>
+                        <li><?php echo e($errorMsg); ?></li>
                 </ul>
             </div>
-        @endif
+        <?php endif; ?>
 
-        @if (session('success'))
+        <?php if(session('success')): ?>
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative font-serif text-sm z-50">
-                {{ session('success') }}
-            </div>
-        @endif
+                <?php echo e(session('success')); ?>
 
-        @if (session('error'))
-            <div class="bg-amber-100 border border-amber-400 text-amber-800 px-4 py-3 rounded relative font-serif text-sm z-50">
-                {{ session('error') }}
             </div>
-        @endif
+        <?php endif; ?>
+
+        <?php if(session('error')): ?>
+            <div class="bg-amber-100 border border-amber-400 text-amber-800 px-4 py-3 rounded relative font-serif text-sm z-50">
+                <?php echo e(session('error')); ?>
+
+            </div>
+        <?php endif; ?>
         
         <!-- Header Row -->
         <header class="flex flex-col md:flex-row justify-between items-center border-b-2 border-dashed border-cocoa-light/30 pb-4">
@@ -57,8 +59,8 @@
                     📎 MEMORY ARCHIVE
                 </div>
                 
-                <form action="{{ route('upload-camera-photo') }}" method="POST" enctype="multipart/form-data" id="form-camera-photo" class="w-full md:w-auto shrink-0 flex flex-col items-center">
-                    @csrf
+                <form action="<?php echo e(route('upload-camera-photo')); ?>" method="POST" enctype="multipart/form-data" id="form-camera-photo" class="w-full md:w-auto shrink-0 flex flex-col items-center">
+                    <?php echo csrf_field(); ?>
                     <label for="camera_photo_input" class="w-[170px] sm:w-[190px] aspect-[4/3] rounded-lg overflow-hidden border-2 border-espresso bg-[#E5DCCB] relative group block cursor-pointer shadow-md transform hover:rotate-2 transition duration-300">
                         <img id="custom-camera-img" src="/images/custom_camera.png" class="w-full h-full object-cover select-none" alt="Custom Camera Photo" onerror="this.src='/images/vintage_camera.png'">
                         <input type="file" name="camera_photo" id="camera_photo_input" class="hidden" onchange="document.getElementById('form-camera-photo').submit();">
@@ -97,8 +99,8 @@
                 <div id="polaroid-container" class="relative w-full h-full min-h-[260px] flex items-center justify-center select-none">
                     
                     <div id="card-polaroid-3" class="polaroid-interactive-card absolute z-10 transition-all duration-300 ease-out transform -translate-y-4 rotate-[-4deg] cursor-pointer">
-                        <form action="{{ route('upload-polaroid', 3) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-3">
-                            @csrf
+                        <form action="<?php echo e(route('upload-polaroid', 3)); ?>" method="POST" enctype="multipart/form-data" id="form-polaroid-3">
+                            <?php echo csrf_field(); ?>
                             <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-md rounded-sm select-none">
                                 <div class="w-full h-24 sm:h-28 overflow-hidden relative pointer-events-none">
                                     <img src="/images/polaroid_3.png" class="w-full h-full object-cover filter sepia-[0.2]" alt="Langit" onerror="this.src='/images/friends_polaroid.png'">
@@ -110,8 +112,8 @@
                     </div>
 
                     <div id="card-polaroid-2" class="polaroid-interactive-card absolute z-20 transition-all duration-300 ease-out transform translate-x-8 translate-y-2 rotate-[8deg] cursor-pointer">
-                        <form action="{{ route('upload-polaroid', 2) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-2">
-                            @csrf
+                        <form action="<?php echo e(route('upload-polaroid', 2)); ?>" method="POST" enctype="multipart/form-data" id="form-polaroid-2">
+                            <?php echo csrf_field(); ?>
                             <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-lg rounded-sm select-none">
                                 <div class="w-full h-24 sm:h-28 overflow-hidden relative pointer-events-none">
                                     <img src="/images/polaroid_2.png" class="w-full h-full object-cover filter sepia-[0.1]" alt="Awan" onerror="this.src='/images/friends_polaroid.png'">
@@ -123,8 +125,8 @@
                     </div>
 
                     <div id="card-polaroid-1" class="polaroid-interactive-card absolute z-30 transition-all duration-300 ease-out transform -translate-x-8 translate-y-3 rotate-[-8deg] cursor-pointer">
-                        <form action="{{ route('upload-polaroid', 1) }}" method="POST" enctype="multipart/form-data" id="form-polaroid-1">
-                            @csrf
+                        <form action="<?php echo e(route('upload-polaroid', 1)); ?>" method="POST" enctype="multipart/form-data" id="form-polaroid-1">
+                            <?php echo csrf_field(); ?>
                             <label class="polaroid-photo block w-36 sm:w-40 bg-white p-2 pb-3.5 border border-gray-200 cursor-pointer shadow-xl rounded-sm select-none">
                                 <div class="w-full h-24 sm:h-28 overflow-hidden relative pointer-events-none">
                                     <img src="/images/polaroid_1.png" class="w-full h-full object-cover filter sepia-[0.3]" alt="Salju" onerror="this.src='/images/friends_polaroid.png'">
@@ -145,8 +147,8 @@
                 <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-tiramisu-dark/10 rounded-full blur-2xl"></div>
                 
                 <div class="flex items-center gap-4 z-10 w-full md:w-auto">
-                    <form action="{{ route('upload-kayla') }}" method="POST" enctype="multipart/form-data" id="form-kayla-photo" class="shrink-0">
-                        @csrf
+                    <form action="<?php echo e(route('upload-kayla')); ?>" method="POST" enctype="multipart/form-data" id="form-kayla-photo" class="shrink-0">
+                        <?php echo csrf_field(); ?>
                         <label class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-tiramisu-light/30 shrink-0 relative group block cursor-pointer">
                             <img id="player-album-art" src="/images/kayla.jpg" class="w-full h-full object-cover" alt="Kayla" onerror="this.src='/images/custom_camera.png'">
                             <input type="file" name="kayla_photo" class="hidden" onchange="document.getElementById('form-kayla-photo').submit();">
@@ -202,31 +204,31 @@
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 w-full">
-                <a href="{{ route('photobooth') }}" class="paper-patch bg-[#FAF0E6] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
+                <a href="<?php echo e(route('photobooth')); ?>" class="paper-patch bg-[#FAF0E6] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
                     <span class="text-2xl">📸</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">DIY Photobooth</span>
                     <span class="font-hand text-xs text-cocoa-medium">3 Strip Foto Lucu</span>
                 </a>
                 
-                <a href="{{ route('gallery') }}" class="paper-patch bg-[#FDF5E6] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
+                <a href="<?php echo e(route('gallery')); ?>" class="paper-patch bg-[#FDF5E6] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
                     <span class="text-2xl">🎞️</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">Friendship Galery</span>
                     <span class="font-hand text-xs text-cocoa-medium">Open Our Galery</span>
                 </a>
 
-                <a href="{{ route('daily-journal') }}" class="paper-patch bg-[#FFFDF9] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition shadow-sm">
+                <a href="<?php echo e(url('/daily-journal')); ?>" class="paper-patch bg-[#FFFDF9] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition shadow-sm">
                     <span class="text-2xl">📖</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">Daily Journal</span>
                     <span class="font-hand text-xs text-cocoa-medium">Notes &amp; Mood</span>
                 </a>
 
-                <a href="{{ route('surat-dari-aku') }}" class="paper-patch bg-[#FAEBD7] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
+                <a href="<?php echo e(route('surat-dari-aku')); ?>" class="paper-patch bg-[#FAEBD7] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
                     <span class="text-2xl">💌</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">A Letter for Wibu</span>
                     <span class="font-hand text-xs text-cocoa-medium">Opening Letter</span>
                 </a>
 
-                <a href="{{ route('kapsul-waktu') }}" class="paper-patch bg-[#F5F5DC] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
+                <a href="<?php echo e(route('kapsul-waktu')); ?>" class="paper-patch bg-[#F5F5DC] border-2 border-espresso p-3.5 sm:p-4 text-center rounded flex flex-col items-center justify-center gap-1 hover:bg-tiramisu-light/30 transition">
                     <span class="text-2xl">🔒</span>
                     <span class="font-serif text-[11px] font-extrabold uppercase tracking-wide">Kapsul Waktu</span>
                     <span class="font-hand text-xs text-cocoa-medium">Pesan untuk Masa Depan</span>
@@ -270,7 +272,7 @@
         const trackTitle = document.getElementById('player-track-title');
         const artistEl = document.getElementById('player-artist');
         
-        let tracks = @json($customTracks ?? []);
+        let tracks = <?php echo json_encode($customTracks ?? [], 15, 512) ?>;
         if (!tracks || tracks.length === 0) {
             tracks = [
                 {
@@ -406,4 +408,4 @@
     })();
     </script>
 </body>
-</html>
+</html><?php /**PATH C:\xampp\htdocs\web_scrap\resources\views/welcome.blade.php ENDPATH**/ ?>
