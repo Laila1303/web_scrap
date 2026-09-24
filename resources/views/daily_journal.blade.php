@@ -34,14 +34,14 @@
             </div>
         @endif
 
-        <!-- Card Buku Agenda Bergaris (Vintage Binder + Mood) -->
+        <!-- Card Agenda Harian Vintage -->
         <div class="bg-[#FDFBF7] border-2 border-espresso p-4 sm:p-6 rounded-xl shadow-lg relative">
             <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-cocoa-medium text-cream-light text-[10px] uppercase font-bold tracking-wider px-4 py-0.5 rounded shadow">
-                📌 DAILY NOTES &amp; MOOD
+                📌 TODAY'S NOTES &amp; MOOD
             </div>
 
-            <!-- Bagian Mood Tracker (Menyatu di Header Kertas) -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b-2 border-dashed border-cocoa-light/30 pb-3 mb-3">
+            <!-- Mood Tracker Bar: Senang, Sedih, Bosan, Kesal, Capek -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-b-2 border-dashed border-cocoa-light/30 pb-3.5 mb-3">
                 <div class="text-center sm:text-left">
                     <span class="font-mono text-[10px] uppercase tracking-wider text-cocoa-medium">DATE: {{ date('d M Y') }}</span>
                     <h3 class="font-serif text-xs sm:text-sm font-bold text-espresso">Today's Mood: 
@@ -51,15 +51,15 @@
                     </h3>
                 </div>
 
-                <!-- 5 Stempel Mood Lucu -->
-                <div class="flex items-center gap-1.5 bg-cream-light/60 p-1.5 rounded-lg border border-cocoa-light/30">
+                <!-- 5 Pilihan Mood Baru -->
+                <div class="flex items-center gap-2 bg-cream-light/60 p-1.5 rounded-lg border border-cocoa-light/30">
                     @php
                         $moods = [
-                            ['emoji' => '🌸', 'label' => 'Happy'],
-                            ['emoji' => '✨', 'label' => 'Productive'],
-                            ['emoji' => '🍵', 'label' => 'Calm'],
-                            ['emoji' => '🌧️', 'label' => 'Tired'],
-                            ['emoji' => '🧸', 'label' => 'Rest'],
+                            ['emoji' => '🥰', 'label' => 'Senang'],
+                            ['emoji' => '🥺', 'label' => 'Sedih'],
+                            ['emoji' => '🥱', 'label' => 'Bosan'],
+                            ['emoji' => '😤', 'label' => 'Kesal'],
+                            ['emoji' => '😴', 'label' => 'Capek'],
                         ];
                     @endphp
 
@@ -68,7 +68,7 @@
                             @csrf
                             <input type="hidden" name="mood_emoji" value="{{ $m['emoji'] }}">
                             <input type="hidden" name="mood_label" value="{{ $m['label'] }}">
-                            <button type="submit" title="{{ $m['label'] }}" class="w-8 h-8 rounded border border-espresso/60 flex items-center justify-center text-sm transition transform hover:scale-110 active:scale-95 cursor-pointer {{ ($todayMood && $todayMood->mood_label === $m['label']) ? 'bg-espresso shadow-md ring-2 ring-cocoa-medium' : 'bg-white hover:bg-cream-light' }}">
+                            <button type="submit" title="{{ $m['label'] }}" class="w-9 h-9 rounded-lg border-2 border-espresso/70 flex items-center justify-center text-lg transition-transform hover:scale-110 active:scale-95 cursor-pointer shadow-sm {{ ($todayMood && $todayMood->mood_label === $m['label']) ? 'bg-amber-100 border-espresso ring-2 ring-cocoa-medium shadow-md' : 'bg-white hover:bg-cream-light' }}">
                                 {{ $m['emoji'] }}
                             </button>
                         </form>
@@ -76,7 +76,7 @@
                 </div>
             </div>
 
-            <!-- Area Kertas Garis Binder untuk To-Do List -->
+            <!-- To-Do List Khusus Hari Ini -->
             <div class="border-l-4 border-double border-cocoa-light/40 pl-3 sm:pl-5 py-2 flex flex-col gap-1 min-h-[260px]">
                 
                 @forelse($todos as $todo)
@@ -105,15 +105,15 @@
                 @empty
                     <div class="text-center py-10">
                         <span class="text-2xl">📝</span>
-                        <p class="font-hand text-sm text-cocoa-medium mt-1">Belum ada target yang ditulis. Tambah rencana baru di bawah!</p>
+                        <p class="font-hand text-sm text-cocoa-medium mt-1">Belum ada target untuk hari ini. Tambah di bawah ya!</p>
                     </div>
                 @endforelse
 
-                <!-- Baris Tambah Item Baru Langsung di Kertas -->
+                <!-- Baris Tambah To-Do Baru -->
                 <form action="{{ route('todo.store') }}" method="POST" class="flex items-center gap-2 border-b-2 border-dashed border-cocoa-light/40 py-2 mt-2">
                     @csrf
                     <span class="text-cocoa-medium font-bold text-sm shrink-0 pl-1">＋</span>
-                    <input type="text" name="task" placeholder="Tulis rencana / target baru di sini..." class="w-full bg-transparent border-none text-xs sm:text-sm font-serif italic text-espresso focus:outline-none placeholder:text-cocoa-light/50" required autocomplete="off">
+                    <input type="text" name="task" placeholder="Tulis rencana hari ini di sini..." class="w-full bg-transparent border-none text-xs sm:text-sm font-serif italic text-espresso focus:outline-none placeholder:text-cocoa-light/50" required autocomplete="off">
                     <button type="submit" class="shrink-0 bg-espresso text-cream-light font-serif text-[11px] px-3 py-1 rounded hover:bg-cocoa-medium transition">
                         Add Note
                     </button>
@@ -123,7 +123,7 @@
 
             <!-- Quote Footer -->
             <div class="text-center mt-5">
-                <span class="font-hand text-xs sm:text-sm text-cocoa-medium italic">~ One step at a time, Kayla ~</span>
+                <span class="font-hand text-xs sm:text-sm text-cocoa-medium italic">~ One day at a time, Kayla ~</span>
             </div>
         </div>
 

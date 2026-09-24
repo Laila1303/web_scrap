@@ -105,14 +105,20 @@ Route::post('/upload-polaroid/{id}', function (Request $request, $id) {
     return redirect()->back()->with('error', 'Gagal memperbarui polaroid.');
 })->name('upload-polaroid');
 
-// 7. Daily Journal & Mood Tracker (Anti-Crash 500)
+// 7. Daily Journal & Mood Tracker (Filter Khusus Hari Ini)
 Route::get('/daily-journal', function () {
+    $today = now()->toDateString();
     $todos = [];
     $todayMood = null;
 
     try {
         if (class_exists(Todo::class)) {
-            $todos = Todo::orderBy('id', 'asc')->get();
+            $todos = Todo::where(function ($query) use ($today) {
+                            $query->whereDate('date', $today)
+                                  ->orWhereDate('created_at', $today);
+                        })
+                        ->orderBy('id', 'asc')
+                        ->get();
         }
     } catch (\Throwable $e) {
         $todos = [];
@@ -120,7 +126,6 @@ Route::get('/daily-journal', function () {
 
     try {
         if (class_exists(DailyMood::class)) {
-            $today = now()->toDateString();
             $todayMood = DailyMood::where('date', $today)->latest()->first();
         }
     } catch (\Throwable $e) {
@@ -152,18 +157,20 @@ Route::post('/daily-mood', function (Request $request) {
     }
 })->name('mood.store');
 
-// Simpan Catatan To-Do Baru
+// Simpan Catatan To-Do Baru (Tersimpan dengan Tanggal Hari Ini)
 Route::post('/daily-journal', function (Request $request) {
     $request->validate([
         'task' => 'required|string|max:255'
     ]);
 
     try {
+        $today = now()->toDateString();
         Todo::create([
             'task' => $request->task,
-            'is_completed' => false
+            'is_completed' => false,
+            'date' => $today,
         ]);
-        return redirect()->route('daily-journal')->with('success', 'Catatan baru berhasil ditambahkan! 🌸');
+        return redirect()->route('daily-journal')->with('success', 'Target hari ini berhasil ditambahkan! 🌸');
     } catch (\Throwable $e) {
         return redirect()->route('daily-journal')->with('error', 'Gagal menambahkan catatan: ' . $e->getMessage());
     }
